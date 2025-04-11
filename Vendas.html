@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja Online</title>
+    
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 1em;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 10px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+main {
+    padding: 20px;
+    text-align: center;
+}
+
+.product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.product-item {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.product-item img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+.product-item h3 {
+    margin-top: 10px;
+}
+
+.product-item p {
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    padding: 1em;
+    text-align: center;
+    margin-top: 20px;
+}
+
+
+#carrinho {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-color: #f0f0f0;
+    padding: 20px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto;
+}
+
+#carrinho.show {
+    transform: translateX(0);
+}
+
+#carrinho-lista {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+#carrinho-lista li {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#carrinho-lista li button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#carrinho-total {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#finalizar-compra {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+#fechar-carrinho {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #888;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+    <header>
+        <h1>Loja Online</h1>
+        <nav>
+            <ul>
+                <li><a href="#produtos">Produtos</a></li>
+                <li><a href="#carrinho">Carrinho</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="produtos">
+        <h2>Produtos</h2>
+        <div class="product-list">
+            <div class="product-item">
+                <img src="produto1.jpg" alt="Produto 1">
+                <h3>Produto 1</h3>
+                <p>Descrição do Produto 1</p>
+                <p>Preço: R$10.00</p>
+                <button onclick="adicionarAoCarrinho('Produto 1', 10.00, 'produto1.jpg')">Adicionar ao Carrinho</button>
+            </div>
+            <div class="product-item">
+                <img src="produto2.jpg" alt="Produto 2">
+                <h3>Produto 2</h3>
+                <p>Descrição do Produto 2</p>
+                <p>Preço: R$20.00</p>
+                <button onclick="adicionarAoCarrinho('Produto 2', 20.00, 'produto2.jpg')">Adicionar ao Carrinho</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="carrinho">
+        <button id="fechar-carrinho">Fechar</button>
+        <h2>Carrinho</h2>
+        <ul id="carrinho-lista">
+        </ul>
+        <p id="carrinho-total">Total: R$0.00</p>
+        <button id="finalizar-compra">Finalizar Compra</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Loja Online</p>
+    </footer>
+
+    
+
+<script>
+const carrinhoLista = document.getElementById('carrinho-lista');
+const carrinhoTotal = document.getElementById('carrinho-total');
+const carrinhoElement = document.getElementById('carrinho');
+const finalizarCompraButton = document.getElementById('finalizar-compra');
+const fecharCarrinhoButton = document.getElementById('fechar-carrinho');
+
+
+let carrinho = [];
+let total = 0;
+
+function adicionarAoCarrinho(nome, preco, imagemSrc) {
+    carrinho.push({ nome, preco, imagemSrc });
+    total += preco;
+    atualizarCarrinho();
+    alert(${nome} foi adicionado ao carrinho!);
+}
+
+function removerDoCarrinho(index) {
+    const produtoRemovido = carrinho.splice(index, 1)[0];
+    total -= produtoRemovido.preco;
+    atualizarCarrinho();
+}
+
+function atualizarCarrinho() {
+    carrinhoLista.innerHTML = '';
+    carrinho.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <img src="${item.imagemSrc}" alt="${item.nome}" style="width: 50px; border-radius: 5px;">
+            <span>${item.nome} - R$${item.preco.toFixed(2)}</span>
+            <button onclick="removerDoCarrinho(${index})">Remover</button>
+        `;
+        carrinhoLista.appendChild(li);
+    });
+    carrinhoTotal.textContent = Total: R$${total.toFixed(2)};
+    if (carrinho.length > 0) {
+        finalizarCompraButton.style.display = "block";
+    } else {
+        finalizarCompraButton.style.display = "none";
+    }
+}
+
+
+finalizarCompraButton.addEventListener('click', () => {
+    if (carrinho.length > 0) {
+        alert(Compra finalizada! Total: R$${total.toFixed(2)});
+        carrinho = [];
+        total = 0;
+        atualizarCarrinho();
+        carrinhoElement.classList.remove('show');
+    } else {
+        alert("Carrinho vazio!");
+    }
+});
+
+document.querySelector('nav ul li:last-child a').addEventListener('click', (event) => {
+    event.preventDefault(); 
+    carrinhoElement.classList.add('show');
+});
+
+fecharCarrinhoButton.addEventListener('click', () => {
+    carrinhoElement.classList.remove('show');
+});
+</script>
+</body>
+</html>

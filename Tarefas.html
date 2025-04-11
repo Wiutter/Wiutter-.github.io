@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicativo de Lista de Tarefas</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 min-h-screen flex flex-col items-center justify-start pt-12">
+
+    <h1 class="text-4xl font-semibold text-gray-800 mb-8">Minha Lista de Tarefas</h1>
+     <div id="mensagem" class="w-full max-w-md mb-4 p-2 text-center text-red-500 font-semibold rounded-md border border-red-500/50 hidden">
+    </div>
+
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-center mb-4">
+            <input type="text" id="novaTarefa" placeholder="Adicionar nova tarefa..." class="flex-grow rounded-l-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2">
+            <button id="adicionarTarefa" class="bg-blue-500 hover:bg-blue-600 text-white rounded-r-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-circle"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+            </button>
+        </div>
+        <ul id="listaDeTarefas" class="space-y-3">
+            </ul>
+    </div>
+
+    <script>
+        const listaDeTarefas = document.getElementById('listaDeTarefas');
+        const novaTarefaInput = document.getElementById('novaTarefa');
+        const adicionarTarefaButton = document.getElementById('adicionarTarefa');
+        const mensagemElement = document.getElementById('mensagem'); // Obtém o elemento de mensagem
+
+        // Função para adicionar tarefa
+        function adicionarTarefa() {
+            const novaTarefaTexto = novaTarefaInput.value.trim();
+
+            if (novaTarefaTexto === '') {
+                mostrarMensagem('Por favor, insira uma tarefa!'); // Usa a função mostrarMensagem
+                return;
+            }  
+
+            mensagemElement.classList.add('hidden'); //esconde a mensagem de erro
+
+            const novaTarefaItem = document.createElement('li');
+            novaTarefaItem.className = "flex items-center justify-between bg-gray-50 p-3 rounded-lg";
+
+            const checkbox = document.createElement('input');
+            checkbox.type = "checkbox";
+            checkbox.className = "mr-2 rounded-md text-blue-500 focus:ring-blue-500 h-5 w-5";
+            checkbox.addEventListener('change', marcarComoConcluida);
+
+            const tarefaTexto = document.createElement('span');
+            tarefaTexto.textContent = novaTarefaTexto;
+            tarefaTexto.className = "flex-grow";
+
+            const botaoExcluir = document.createElement('button');
+            botaoExcluir.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2 text-gray-400 hover:text-red-500 transition-colors duration-200"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>`;
+            botaoExcluir.className = "p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500";
+            botaoExcluir.addEventListener('click', excluirTarefa);
+
+            const tarefaConteudo = document.createElement('div');
+            tarefaConteudo.className = 'flex items-center';
+            tarefaConteudo.appendChild(checkbox);
+            tarefaConteudo.appendChild(tarefaTexto);
+
+            novaTarefaItem.appendChild(tarefaConteudo);
+            novaTarefaItem.appendChild(botaoExcluir);
+            listaDeTarefas.appendChild(novaTarefaItem);
+
+            novaTarefaInput.value = ''; // Limpa o input
+        }
+        // Função para marcar tarefa como concluída
+        function marcarComoConcluida(event) {
+            const listItem = event.target.closest('li'); // Encontra o <li> pai
+             const textoElement = listItem.querySelector('span');
+            listItem.classList.toggle('completed');
+             if (listItem.classList.contains('completed')) {
+                textoElement.classList.add('line-through', 'text-gray-400');
+             }else{
+                textoElement.classList.remove('line-through', 'text-gray-400');
+             }
+
+        }
+
+        // Função para excluir tarefa
+        function excluirTarefa(event) {
+            const listItem = event.target.closest('li');  // Encontra o <li> pai do botão
+            listItem.remove();
+        }
+
+        // Função para exibir mensagens
+        function mostrarMensagem(mensagem) {
+            mensagemElement.textContent = mensagem;
+            mensagemElement.classList.remove('hidden'); // Remove a classe 'hidden' para tornar a mensagem visível
+            setTimeout(() => {
+                mensagemElement.classList.add('hidden'); // Adiciona a classe 'hidden' após 3 segundos
+            }, 3000);
+        }
+
+        // Event Listeners
+        adicionarTarefaButton.addEventListener('click', adicionarTarefa);
+        novaTarefaInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                adicionarTarefa();
+            }
+        });
+    </script>
+</body>
+</html>

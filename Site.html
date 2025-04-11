@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corinthians e Gaviões da Fiel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000; /* Cor de fundo preta */
+            color: #fff; /* Cor do texto branca */
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 2rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #fff; /* Linha branca abaixo do cabeçalho */
+            padding-bottom: 1rem;
+        }
+        .logo {
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 800;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #b89f77; /* Cor dourada para links no hover */
+        }
+        .banner-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh; /* Altura do banner ajustada */
+            text-align: center;
+            background-image: url('https://static.poder360.com.br/2020/02/torcida-corinthians-gavioes-da-fiel-768x480.jpg'); /* Imagem da torcida Gaviões da Fiel */
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem; /* Adiciona borda arredondada ao banner */
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5); /* Sombra no banner */
+        }
+        .banner-section h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #fff; /* Cor do título branca */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* Sombra no texto */
+        }
+        .banner-section p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: #eee; /* Cor do parágrafo mais clara */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); /* Sombra no texto */
+        }
+        .cta-button {
+            background-color: #b89f77; /* Cor dourada */
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .cta-button:hover {
+            background-color: #a38e5d; /* Tom mais escuro de dourado no hover */
+            transform: scale(1.05);
+        }
+        .section {
+            padding: 4rem 0;
+            text-align: center;
+        }
+        .section h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: #fff;
+        }
+        .section p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            color: #eee;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .info-card {
+            background-color: rgba(255, 255, 255, 0.1); /* Cartões semi-transparentes */
+            padding: 2rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Borda branca sutil */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-align: center;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2); /* Sombra nos cartões */
+        }
+        .info-card:hover {
+            background-color: rgba(255, 255, 255, 0.2); /* Levemente mais claro no hover */
+            transform: scale(1.03);
+        }
+        .info-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        .info-card p {
+            font-size: 0.9rem;
+            color: #eee;
+        }
+        .footer {
+            background-color: #000;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+            border-top: 2px solid #fff; /* Linha branca acima do rodapé */
+            margin-top: 4rem;
+        }
+        .media-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .media-links a {
+            color: #fff;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+        .media-links a:hover {
+            color: #b89f77; /* Cor dourada no hover */
+        }
+
+        /* Estilos para as abas */
+        .tab-container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 2rem;
+        }
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .tab-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        .tab-button.active {
+            background-color: #b89f77; /* Cor dourada ativa */
+            border-bottom: 2px solid #fff;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        .tab-content {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 0 0.5rem 0.5rem 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .tab-content.hidden {
+            display: none;
+        }
+
+        /* Estilos específicos para a página do Corinthians */
+        #corinthians .header {
+            background-color: #000; /* Cabeçalho preto para o Corinthians */
+        }
+        #corinthians .logo {
+            color: #fff; /* Logo branco para o Corinthians */
+        }
+        #corinthians .nav-links a {
+            color: #fff; /* Links brancos para o Corinthians */
+        }
+        #corinthians .nav-links a:hover {
+            color: #b89f77; /* Dourado no hover */
+        }
+        #corinthians .banner-section {
+            background-image: url('https://static.poder360.com.br/2020/02/torcida-corinthians-gavioes-da-fiel-768x480.jpg'); /* Imagem da torcida Gaviões */
+        }
+        #corinthians .cta-button {
+            background-color: #b89f77; /* Botão dourado para o Corinthians */
+        }
+        #corinthians .cta-button:hover {
+            background-color: #a38e5d;
+        }
+
+        /* Estilos específicos para a página da Gaviões da Fiel */
+        #gavioes .header {
+            background-color: #000; /* Cabeçalho preto para a Gaviões */
+        }
+        #gavioes .logo {
+            color: #fff; /* Logo branco para a Gaviões */
+        }
+        #gavioes .nav-links a {
+            color: #fff; /* Links brancos para a Gaviões */
+        }
+        #gavioes .nav-links a:hover {
+            color: #b89f77; /* Dourado no hover */
+        }
+        #gavioes .banner-section {
+            background-image: url('https://static.poder360.com.br/2020/02/torcida-corinthians-gavioes-da-fiel-768x480.jpg'); /* Imagem da Gaviões */
+        }
+         #gavioes .cta-button {
+            background-color: #b89f77; /* Botão dourado para a Gaviões */
+        }
+        #gavioes .cta-button:hover {
+            background-color: #a38e5d;
+        }
+        #gavioes .section#gavioes {
+            background-image: url('https://static.poder360.com.br/2020/02/torcida-corinthians-gavioes-da-fiel-768x480.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #gavioes .section#gavioes h2,
+        #gavioes .section#gavioes p,
+        #gavioes .section#gavioes .info-card h3,
+        #gavioes .section#gavioes .info-card p{
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900" id="corinthians"> <header class="header container">
+        <div class="logo">
+            <a href="#home">Corinthians</a>
+        </div>
+        <nav class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#historia">História</a>
+            <a href="#titulos">Títulos</a>
+            <a href="#gavioes">Gaviões da Fiel</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="banner-section">
+            <h1>Sport Club Corinthians Paulista</h1>
+            <p>O Time do Povo</p>
+            <a href="#historia" class="cta-button">Conheça a História</a>
+        </section>
+
+        <section id="historia" class="section container">
+            <h2>História do Corinthians</h2>
+            <p>
+                O Sport Club Corinthians Paulista foi fundado em 1º de setembro de 1910, por um grupo de operários do bairro do Bom Retiro. O nome do clube foi inspirado no Corinthian Football Club de Londres.
+                Desde sua fundação, o Corinthians se tornou um dos clubes mais populares e bem-sucedidos do Brasil, com uma história rica em conquistas e uma torcida apaixonada.
+            </p>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Primeiro Título</h3>
+                    <p>O primeiro título importante do Corinthians foi o Campeonato Paulista de 1914.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Era Dourada</h3>
+                    <p>A década de 1990 é considerada uma das mais vitoriosas do clube, com a conquista de diversos títulos nacionais e internacionais.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Fiel Torcida</h3>
+                    <p>A torcida do Corinthians, conhecida como "Fiel", é uma das maiores e mais apaixonadas do mundo.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="titulos" class="section container">
+            <h2>Títulos</h2>
+            <p>O Corinthians possui uma vasta coleção de títulos, incluindo:</p>
+            <ul>
+                <li>7 Campeonatos Brasileiros</li>
+                <li>3 Copas do Brasil</li>
+                <li>30 Campeonatos Paulistas</li>
+                <li>1 Copa Libertadores da América</li>
+                <li>2 Mundiais de Clubes da FIFA</li>
+            </ul>
+        </section>
+
+        <section id="gavioes" class="section container">
+            <h2>Gaviões da Fiel</h2>
+            <p>
+                A Gaviões da Fiel é a maior torcida organizada do Corinthians e uma das maiores do Brasil. Fundada em 1969, a Gaviões se destaca por sua paixão, presença marcante nos estádios e influência política dentro do clube.
+            </p>
+            <div class="info-grid">
+                 <div class="info-card">
+                    <h3>Fundação</h3>
+                    <p>A Gaviões da Fiel foi fundada em 1969 por torcedores insatisfeitos com a situação do clube na época.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Presença</h3>
+                    <p>A torcida é conhecida por sua presença massiva nos jogos do Corinthians, tanto em São Paulo quanto em outros estados e países.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Influência</h3>
+                    <p>A Gaviões exerce grande influência política no Corinthians, participando de decisões e cobrando a diretoria.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tabs" class="section container">
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-tab="tab1">Notícias</button>
+                    <button class="tab-button" data-tab="tab2">Elenco</button>
+                    <button class="tab-button" data-tab="tab3">Jogos</button>
+                    <button class="tab-button" data-tab="tab4">Gaviões</button>
+                </div>
+                <div class="tab-content" id="tab1">
+                    <h2>Últimas Notícias</h2>
+                    <p>Confira as últimas notícias do Corinthians e da Gaviões da Fiel.</p>
+                    </div>
+                <div class="tab-content hidden" id="tab2">
+                    <h2>Elenco Atual</h2>
+                    <p>Veja o elenco completo do Corinthians para a temporada atual.</p>
+                    <ul>
+                        <li>Goleiros: Carlos Miguel, Matheus Donelli, Cássio</li>
+                        <li>Laterais: Fagner, Matheus Bidu, Hugo</li>
+                        <li>Zagueiros: Félix Torres, Gustavo Henrique, Caetano, Cacá</li>
+                        <li>Meio-Campistas: Raniele, Maycon, Breno Bidon, Garro, Coronado, Paulinho, Fausto Vera</li>
+                        <li>Atacantes: Pedro Raul, Romero, Wesley, Pedro Henrique, Arthur Sousa, Giovane</li>
+                    </ul>
+                </div>
+                <div class="tab-content hidden" id="tab3">
+                    <h2>Próximos Jogos</h2>
+                    <p>Confira a tabela dos próximos jogos do Corinthians.</p>
+                    <p>Jogos Vencidos: 100</p>
+                    </div>
+                <div class="tab-content hidden" id="tab4">
+                    <h2>Informações sobre a Gaviões</h2>
+                    <p>Saiba mais sobre a história, ações e eventos da Gaviões da Fiel.</p>
+                     </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="media-links">
+            <a href="https://www.facebook.com/Corinthians/" target="_blank"><i class="fab fa-facebook"></i></a>
+            <a href="https://twitter.com/Corinthians" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.instagram.com/corinthians/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.youtube.com/user/corinthians" target="_blank"><i class="fab fa-youtube.</i></a>
+        </div>
+        <p>© 2025 Corinthians e Gaviões da Fiel. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.dataset.tab;
+
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.add('hidden'));
+
+                button.classList.add('active');
+                document.getElementById(tabId).classList.remove('hidden');
+            });
+        });
+    </script>
+     <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+</body>
+</html>

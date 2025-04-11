@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Interativo</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .evento {
+            @apply bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-2 rounded-md mb-2;
+        }
+        .tarefa {
+            @apply bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-2 rounded-md mb-2;
+        }
+        .evento-modal {
+            display: none;
+            position: fixed;
+            z-index: 20;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .evento-modal-conteudo {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        .evento-modal-fechar {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .evento-modal-fechar:hover,
+        .evento-modal-fechar:focus {
+            color: #000;
+            text-decoration: none;
+        }
+
+        .calendario-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendario-dias {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .dia {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            text-align: center;
+            background-color: #f7fafc;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            height: 5rem;
+            overflow-y: auto;
+        }
+
+        .dia:hover {
+            background-color: #edf2f7;
+        }
+
+        .dia.mes-anterior,
+        .dia.mes-seguinte {
+            background-color: #f0f0f0;
+            color: #a0aec0;
+        }
+
+        .dia.hoje {
+            background-color: #e6fffa;
+            border: 2px solid #48bb78;
+        }
+
+         .dia-numero {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #1a202c;
+        }
+
+        .evento-item {
+            background-color: #f56565;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+      .tarefa-item {
+            background-color: #f6e05e;
+            color: #1a202c;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .evento-item span,
+        .tarefa-item span {
+            margin-right: auto;
+            margin-left: 0.25rem;
+        }
+
+        .evento-modal input[type="text"],
+        .evento-modal input[type="datetime-local"],
+        .evento-modal textarea {
+            @apply w-full p-2 mb-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+        }
+
+        .evento-modal button {
+            @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline;
+        }
+        .evento-modal button[disabled] {
+            @apply bg-gray-400 cursor-not-allowed hover:bg-gray-400;
+        }
+
+        .error-message {
+            @apply text-red-500 text-sm mt-2;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 pt-8">
+    <div class="container mx-auto p-4 rounded-lg shadow-md bg-white">
+        <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Calendário de Eventos e Tarefas</h1>
+
+        <div class="calendario">
+            <div class="calendario-header">
+                <div>Dom</div>
+                <div>Seg</div>
+                <div>Ter</div>
+                <div>Qua</div>
+                <div>Qui</div>
+                <div>Sex</div>
+                <div>Sáb</div>
+            </div>
+            <div class="calendario-dias" id="calendario-dias">
+                </div>
+        </div>
+
+        <div id="evento-modal" class="evento-modal">
+            <div class="evento-modal-conteudo">
+                <span class="evento-modal-fechar" id="evento-modal-fechar">&times;</span>
+                <h2 id="evento-modal-titulo" class="text-xl font-semibold text-gray-800 mb-4">Adicionar Evento</h2>
+                <form id="evento-form" novalidate>
+                    <div id="evento-tipo-container" class="mb-4">
+                        <label for="evento-tipo" class="block text-gray-700 text-sm font-bold mb-2">Tipo:</label>
+                        <select id="evento-tipo" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <option value="evento">Evento</option>
+                            <option value="tarefa">Tarefa</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="evento-nome" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
+                        <input type="text" id="evento-nome" placeholder="Nome do Evento/Tarefa" required>
+                        <div id="evento-nome-erro" class="error-message"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="evento-data" class="block text-gray-700 text-sm font-bold mb-2">Data e Hora:</label>
+                        <input type="datetime-local" id="evento-data" required>
+                         <div id="evento-data-erro" class="error-message"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="evento-descricao" class="block text-gray-700 text-sm font-bold mb-2">Descrição:</label>
+                        <textarea id="evento-descricao" placeholder="Descrição do Evento/Tarefa" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                    </div>
+                    <button type="submit" id="evento-salvar">Salvar</button>
+                    <button type="button" id="evento-cancelar" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline ml-2">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       const calendarioDias = document.getElementById('calendario-dias');
+        const eventoModal = document.getElementById('evento-modal');
+        const eventoModalFechar = document.getElementById('evento-modal-fechar');
+        const eventoForm = document.getElementById('evento-form');
+        const eventoNomeInput = document.getElementById('evento-nome');
+        const eventoDataInput = document.getElementById('evento-data');
+        const eventoDescricaoInput = document.getElementById('evento-descricao');
+        const eventoSalvarButton = document.getElementById('evento-salvar');
+        const eventoCancelarButton = document.getElementById('evento-cancelar');
+        const eventoTipoSelect = document.getElementById('evento-tipo');
+        const eventoTipoContainer = document.getElementById('evento-tipo-container');
+        const eventoModalTituloElement = document.getElementById('evento-modal-titulo');
+
+        let eventos = JSON.parse(localStorage.getItem('eventos')) || [];
+        let dataSelecionada = null;
+        let editIndex = null;
+
+        eventoModalFechar.addEventListener('click', fecharModal);
+        eventoCancelarButton.addEventListener('click', fecharModal);
+
+        window.addEventListener('click', (event) => {
+            if (event.target === eventoModal) {
+                fecharModal();
+            }
+        });
+
+        eventoForm.addEventListener('submit', salvarEvento);
+
+        function renderizarCalendario() {
+            calendarioDias.innerHTML = '';
+            const dataAtual = new Date();
+            const primeiroDiaDoMes = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
+            const ultimoDiaDoMes = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0);
+            const diaDaSemanaDoPrimeiroDia = primeiroDiaDoMes.getDay();
+
+            for (let i = 0; i < diaDaSemanaDoPrimeiroDia; i++) {
+                const diaElement = document.createElement('div');
+                diaElement.classList.add('dia', 'mes-anterior');
+                calendarioDias.appendChild(diaElement);
+            }
+
+            for (let dia = 1; dia <= ultimoDiaDoMes.getDate(); dia++) {
+                const diaElement = document.createElement('div');
+                diaElement.classList.add('dia');
+                if (dia === dataAtual.getDate()) {
+                    diaElement.classList.add('hoje');
+                }
+                const diaNumero = document.createElement('div');
+                diaNumero.classList.add('dia-numero');
+                diaNumero.textContent = dia;
+                diaElement.appendChild(diaNumero);
+
+                const dataCompleta = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dia);
+                const eventosDoDia = eventos.filter(evento => {
+                    const dataEvento = new Date(evento.data);
+                    return dataEvento.getDate() === dataCompleta.getDate() &&
+                           dataEvento.getMonth() === dataCompleta.getMonth() &&
+                           dataEvento.getFullYear() === dataCompleta.getFullYear();
+                });
+
+                eventosDoDia.forEach(evento => {
+                    const eventoItem = document.createElement('div');
+                    eventoItem.classList.add(evento.tipo === 'evento' ? 'evento-item' : 'tarefa-item');
+                    eventoItem.innerHTML = `<span>${evento.nome}</span>`;
+                    eventoItem.addEventListener('click', () => {
+                        abrirModalParaEdicao(evento);
+                    });
+                    diaElement.appendChild(eventoItem);
+                });
+
+                diaElement.addEventListener('click', () => {
+                    abrirModalParaAdicionar(dataCompleta);
+                });
+                calendarioDias.appendChild(diaElement);
+            }
+
+            const diasRestantes = 42 - calendarioDias.children.length;
+            for (let i = 0; i < diasRestantes; i++) {
+                const diaElement = document.createElement('div');
+                diaElement.classList.add('dia', 'mes-seguinte');
+                calendarioDias.appendChild(diaElement);
+            }
+        }
+
+        function abrirModalParaAdicionar(data) {
+            dataSelecionada = data;
+            editIndex = null;
+            eventoNomeInput.value = '';
+            eventoDataInput.value = data.toISOString().slice(0, 16);
+            eventoDescricaoInput.value = '';
+            eventoModalTituloElement.textContent = 'Adicionar Evento';
+            eventoTipoSelect.value = 'evento';
+            eventoTipoContainer.style.display = 'block';
+            eventoSalvarButton.textContent = 'Salvar';
+            eventoModal.style.display = 'block';
+            eventoNomeInput.focus();
+        }
+
+        function abrirModalParaEdicao(evento) {
+            const index = eventos.findIndex(e => e === evento);
+            if (index !== -1) {
+                editIndex = index;
+                dataSelecionada = new Date(evento.data);
+                eventoNomeInput.value = evento.nome;
+                eventoDataInput.value = new Date(evento.data).toISOString().slice(0, 16);
+                eventoDescricaoInput.value = evento.descricao;
+                eventoModalTituloElement.textContent = 'Editar Evento';
+                eventoTipoSelect.value = evento.tipo;
+                eventoTipoContainer.style.display = 'block';
+                eventoSalvarButton.textContent = 'Salvar';
+                eventoModal.style.display = 'block';
+                eventoNomeInput.focus();
+            }
+        }
+
+        function salvarEvento(event) {
+            event.preventDefault();
+
+            let hasErrors = false;
+
+            const nome = eventoNomeInput.value.trim();
+            const data = eventoDataInput.value;
+
+             if (!nome) {
+                mostrarErro(eventoNomeInput, 'Por favor, insira o nome do evento/tarefa.');
+                hasErrors = true;
+            } else {
+                removerErro(eventoNomeInput);
+            }
+
+            if (!data) {
+                 mostrarErro(eventoDataInput, 'Por favor, insira a data e hora.');
+                  hasErrors = true;
+            } else {
+                 removerErro(eventoDataInput);
+            }
+
+            if (hasErrors) {
+                return;
+            }
+            const tipo = eventoTipoSelect.value;
+            const descricao = eventoDescricaoInput.value;
+
+            if (editIndex !== null) {
+                eventos[editIndex] = {
+                    nome,
+                    data: new Date(data).toISOString(),
+                    descricao,
+                    tipo
+                };
+            } else {
+                const novoEvento = {
+                    nome,
+                    data: new Date(data).toISOString(),
+                    descricao,
+                    tipo
+                };
+                eventos.push(novoEvento);
+            }
+
+            localStorage.setItem('eventos', JSON.stringify(eventos));
+            renderizarCalendario();
+            fecharModal();
+        }
+
+        function fecharModal() {
+            eventoModal.style.display = 'none';
+        }
+
+       function mostrarErro(inputElement, mensagem) {
+            const errorId = inputElement.id + '-erro';
+            let errorElement = document.getElementById(errorId);
+
+            if (!errorElement) {
+                errorElement = document.createElement('div');
+                errorElement.id = errorId;
+                errorElement.className = 'error-message';
+                inputElement.parentNode.appendChild(errorElement);
+            }
+            errorElement.textContent = mensagem;
+        }
+
+        function removerErro(inputElement) {
+            const errorId = inputElement.id + '-erro';
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+
+        renderizarCalendario();
+    </script>
+</body>
+</html>

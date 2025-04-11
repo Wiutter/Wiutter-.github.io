@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicativo de Inventário</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Cor de fundo mais suave */
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 2rem;
+            box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.15), 0 3px 7px -2px rgba(0, 0, 0, 0.07); /* Sombra mais elegante */
+            border-radius: 0.75rem; /* Bordas mais arredondadas */
+            overflow: hidden;
+            background-color: white; /* Fundo da tabela branco */
+        }
+        th, td {
+            padding: 1.25rem; /* Aumenta o preenchimento */
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0; /* Cor da borda mais clara */
+        }
+        th {
+            background-color: #f7fafc; /* Cor de fundo do cabeçalho mais clara */
+            font-weight: 600;
+            color: #4a5568; /* Cor do texto do cabeçalho mais escura */
+        }
+        td {
+            color: #718096; /* Cor do texto da célula um pouco mais escura */
+        }
+        tr:hover {
+            background-color: #edf2f7; /* Cor de fundo do hover mais suave */
+        }
+        .form-container {
+            max-width: 450px; /* Largura ligeiramente maior */
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 0.75rem; /* Bordas mais arredondadas */
+            box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.15), 0 3px 7px -2px rgba(0, 0, 0, 0.07); /* Sombra mais elegante */
+        }
+        .form-container h2 {
+            margin-bottom: 2rem; /* Aumenta o espaço abaixo do título */
+            font-size: 2rem; /* Título maior */
+            font-weight: 600;
+            color: #2d3748; /* Cor do título mais escura */
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 1.5rem; /* Aumenta o espaço entre os grupos de formulário */
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem; /* Aumenta o espaço abaixo do rótulo */
+            font-size: 0.9rem; /* Rótulo ligeiramente maior */
+            font-weight: 600;
+            color: #4a5568; /* Cor do rótulo mais escura */
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem; /* Aumenta o preenchimento */
+            border-radius: 0.5rem; /* Bordas mais arredondadas */
+            border: 1px solid #cbd5e0; /* Cor da borda mais clara */
+            font-size: 1rem;
+            color: #4a5568; /* Cor do texto mais escura */
+            transition: border-color 0.15s ease-in-out, shadow-sm 0.15s ease-in-out;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4299e1; /* Cor de foco mais vibrante */
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15); /* Sombra de foco mais suave */
+        }
+        .form-group .error-message {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #e53e3e; /* Cor do erro mais forte */
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2rem; /* Aumenta o preenchimento */
+            border-radius: 0.5rem; /* Bordas mais arredondadas */
+            background-color: #4299e1; /* Cor do botão mais vibrante */
+            color: white;
+            font-size: 1.1rem; /* Fonte do botão maior */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out, transform 0.1s ease-in-out, box-shadow 0.15s ease-in-out; /* Adiciona transição para a sombra */
+            width: 100%;
+            margin-bottom: 1.25rem; /* Aumenta a margem inferior */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Adiciona sombra ao botão */
+        }
+        .btn-primary:hover {
+            background-color: #3182ce; /* Cor do hover mais escura */
+            transform: translateY(-1px); /* Levemente para cima no hover */
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3); /* Aumenta a sombra no hover */
+        }
+        .btn-primary:active {
+            background-color: #2a69ac; /* Cor do active mais escura */
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Diminui a sombra no active */
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-8 {
+            margin-top: 2rem;
+        }
+        .text-red-500 {
+            color: #e53e3e;
+        }
+        .font-semibold {
+            font-weight: 600;
+        }
+        #exportButton, #saveToDriveButton, #importButton {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2rem; /* Aumenta o preenchimento */
+            border-radius: 0.5rem; /* Bordas mais arredondadas */
+            font-size: 1.1rem; /* Fonte maior */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out, transform 0.1s ease-in-out, box-shadow 0.15s ease-in-out; /* Adiciona transição para a sombra */
+            width: 100%;
+            margin-top: 1.25rem; /* Aumenta a margem superior */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Adiciona sombra */
+        }
+        #exportButton {
+            background-color: #38a169; /* Cor do botão de exportar */
+            color: white;
+        }
+        #exportButton:hover {
+            background-color: #2d7f55;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+        }
+        #exportButton:active {
+            background-color: #276749;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        #saveToDriveButton {
+            background-color: #ed8936; /* Cor do botão de salvar no Drive */
+            color: white;
+        }
+        #saveToDriveButton:hover {
+            background-color: #c55911;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+        }
+        #saveToDriveButton:active {
+            background-color: #9e3e06;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        #importButton {
+            background-color: #7048e8; /* Cor do botão de importar */
+            color: white;
+        }
+        #importButton:hover {
+            background-color: #5b21b6;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+        }
+        #importButton:active {
+            background-color: #4c1d95;
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        #fileInput {
+            display: none;
+        }
+        .chart-container {
+            width: 100%;
+            margin-top: 2rem;
+            border-radius: 0.75rem; /* Bordas mais arredondadas */
+            box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.15), 0 3px 7px -2px rgba(0, 0, 0, 0.07); /* Sombra mais elegante */
+            padding: 1.5rem; /* Aumenta o preenchimento */
+            background-color: white;
+        }
+
+        .edit-button, .delete-button {
+            padding: 0.75rem; /* Aumenta o preenchimento */
+            border-radius: 0.5rem; /* Bordas mais arredondadas */
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out, box-shadow 0.15s ease-in-out; /* Adiciona transição para a sombra */
+            margin-right: 0.75rem; /* Aumenta a margem direita */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Adiciona sombra */
+        }
+        .edit-button {
+            background-color: #4299e1;
+            color: white;
+        }
+        .edit-button:hover {
+            background-color: #3182ce;
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Aumenta a sombra no hover */
+        }
+        .delete-button {
+            background-color: #e53e3e;
+            color: white;
+        }
+        .delete-button:hover {
+            background-color: #c53030;
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Aumenta a sombra no hover */
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem; /* Aumenta o gap */
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="form-container">
+        <h2>Adicionar Item ao Inventário</h2>
+        <form id="inventoryForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Digite o email" required>
+                <div id="email-error" class="error-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="usuario">Usuário</label>
+                <input type="text" id="usuario" name="usuario" placeholder="Digite o nome de usuário" required>
+                <div id="usuario-error" class="error-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" placeholder="Digite a senha" required>
+                <div id="senha-error" class="error-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="provedor">Provedor de Email</label>
+                <select id="provedor" name="provedor">
+                    <option value="gmail">Gmail</option>
+                    <option value="outlook">Outlook</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary">Adicionar</button>
+        </form>
+        <button id="exportButton">Exportar para Excel</button>
+        <button id="saveToDriveButton">Salvar no Google Drive</button>
+        <button id="importButton">Importar do Excel</button>
+        <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm">
+    </div>
+
+    <div class="container mx-auto px-4">
+        <h2 class="text-2xl font-semibold text-gray-800 mt-8 text-center">Inventário</h2>
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Usuário</th>
+                    <th>Senha</th>
+                    <th>Provedor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="chart-container" id="chart_div" style="display: none;">
+        <h2 class="text-xl font-semibold text-gray-800 text-center mb-4">Distribuição de Provedores de Email</h2>
+        <div id="piechart"></div>
+    </div>
+
+    <script>
+        const inventoryForm = document.getElementById('inventoryForm');
+        const dataTable = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+        const emailInput = document.getElementById('email');
+        const usuarioInput = document.getElementById('usuario');
+        const senhaInput = document.getElementById('senha');
+        const provedorInput = document.getElementById('provedor');
+        const exportButton = document.getElementById('exportButton');
+        const saveToDriveButton = document.getElementById('saveToDriveButton');
+        const fileInput = document.getElementById('fileInput');
+        const chartDiv = document.getElementById('chart_div');
+        const piechartDiv = document.getElementById('piechart');
+
+        let data = [];
+        let editingIndex = null; // Variável para controlar o item que está sendo editado
+
+        if (localStorage.getItem('inventoryData')) {
+            data = JSON.parse(localStorage.getItem('inventoryData'));
+            updateTable();
+        }
+
+        inventoryForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            let isValid = true;
+
+            if (!emailInput.value.trim()) {
+                emailError.textContent = "Por favor, insira um email.";
+                isValid = false;
+            } else if (!isValidEmail(emailInput.value.trim())) {
+                emailError.textContent = "Por favor, insira um email válido.";
+                isValid = false;
+            } else {
+                emailError.textContent = "";
+            }
+
+            if (!usuarioInput.value.trim()) {
+                usuarioError.textContent = "Por favor, insira um nome de usuário.";
+                isValid = false;
+            } else {
+                usuarioError.textContent = "";
+            }
+
+            if (!senhaInput.value.trim()) {
+                senhaError.textContent = "Por favor, insira uma senha.";
+                isValid = false;
+            } else {
+                senhaError.textContent = "";
+            }
+
+            if (isValid) {
+                const newEntry = {
+                    email: emailInput.value.trim(),
+                    usuario: usuarioInput.value.trim(),
+                    senha: senhaInput.value.trim(),
+                    provedor: provedorInput.value
+                };
+
+                if (editingIndex !== null) {
+                    // Atualiza o item existente
+                    data[editingIndex] = newEntry;
+                    editingIndex = null; // Reseta o índice de edição
+                    inventoryForm.querySelector('button[type="submit"]').textContent = "Adicionar"; // Restaura o texto do botão
+                } else {
+                    // Adiciona um novo item
+                    data.push(newEntry);
+                }
+
+                localStorage.setItem('inventoryData', JSON.stringify(data));
+                updateTable();
+                inventoryForm.reset();
+                updateChart();
+            }
+        });
+
+        function isValidEmail(email) {
+            const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+            return emailRegex.test(email);
+        }
+
+        function updateTable() {
+            dataTable.innerHTML = '';
+            data.forEach((entry, index) => {
+                const row = dataTable.insertRow();
+                const emailCell = row.insertCell();
+                const usuarioCell = row.insertCell();
+                const senhaCell = row.insertCell();
+                const provedorCell = row.insertCell();
+                const actionsCell = row.insertCell();
+
+                emailCell.textContent = entry.email;
+                usuarioCell.textContent = entry.usuario;
+                senhaCell.textContent = entry.senha;
+                provedorCell.textContent = entry.provedor;
+
+                const editButton = document.createElement('button');
+                editButton.className = 'edit-button';
+                editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M15.502 1.94a2 2 0 0 1 0 2.828L10.29 10.684a.5.5 0 0 0-.153.11zM2.273 11.486a.5.5 0 0 1.904-.103l4.092-4.092a2 2 0 0 1 2.828 0L13.502 6.466a2 2 0 0 1 0 2.828l-9.5 9.497-3 1a1 1 0 0 1-1-1v-2.9l9.497-9.5z"/>
+                </svg>`;
+                editButton.addEventListener('click', () => editItem(index));
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-button';
+                deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M6 13a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2zM3 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2H3zM11 2v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2zM0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm15 0v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1z"/>
+                </svg>`;
+                deleteButton.addEventListener('click', () => deleteItem(index));
+
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'action-buttons';
+                actionsDiv.appendChild(editButton);
+                actionsDiv.appendChild(deleteButton);
+                actionsCell.appendChild(actionsDiv);
+            });
+        }
+
+        function editItem(index) {
+            const item = data[index];
+            emailInput.value = item.email;
+            usuarioInput.value = item.usuario;
+            senhaInput.value = item.senha;
+            provedorInput.value = item.provedor;
+
+            editingIndex = index; // Define o índice do item que está sendo editado
+            inventoryForm.querySelector('button[type="submit"]').textContent = "Salvar Alterações"; // Altera o texto do botão
+
+            // Remove o listener de submit anterior para evitar duplicação
+            inventoryForm.removeEventListener('submit', handleAdd);
+            // Adiciona o listener de submit para editar
+            inventoryForm.addEventListener('submit', handleEdit);
+        }
+
+        function handleEdit(event) {
+            event.preventDefault();
+            let isValid = true;
+
+            if (!emailInput.value.trim()) {
+                emailError.textContent = "Por favor, insira um email.";
+                isValid = false;
+            } else if (!isValidEmail(emailInput.value.trim())) {
+                emailError.textContent = "Por favor, insira um email válido.";
+                isValid = false;
+            } else {
+                emailError.textContent = "";
+            }
+
+            if (!usuarioInput.value.trim()) {
+                usuarioError.textContent = "Por favor, insira um nome de usuário.";
+                isValid = false;
+            } else {
+                usuarioError.textContent = "";
+            }
+
+            if (!senhaInput.value.trim()) {
+                senhaError.textContent = "Por favor, insira uma senha.";
+                isValid = false;
+            } else {
+                senhaError.textContent = "";
+            }
+
+            if (isValid) {
+                const updatedEntry = {
+                    email: emailInput.value.trim(),
+                    usuario: usuarioInput.value.trim(),
+                    senha: senhaInput.value.trim(),
+                    provedor: provedorInput.value
+                };
+
+                data[editingIndex] = updatedEntry; // Atualiza o item na posição correta
+
+                localStorage.setItem('inventoryData', JSON.stringify(data));
+                updateTable();
+                inventoryForm.reset();
+                inventoryForm.querySelector('button[type="submit"]').textContent = "Adicionar"; // Restaura o texto do botão
+                editingIndex = null; // Reseta o índice de edição
+                inventoryForm.removeEventListener('submit', handleEdit); // Remove o listener de edição
+                inventoryForm.addEventListener('submit', handleAdd); // Restaura o listener de adição
+                updateChart();
+            }
+        }
+
+        function deleteItem(index) {
+            data.splice(index, 1);
+            localStorage.setItem('inventoryData', JSON.stringify(data));
+            updateTable();
+            updateChart();
+        }
+
+        exportButton.addEventListener('click', () => {
+            if (data.length === 0) {
+                alert("Não há dados para exportar.");
+                return;
+            }
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Inventário");
+            XLSX.writeFile(wb, "inventario.xlsx");
+        });
+
+        // Função para salvar os dados no Google Drive (simulação)
+        saveToDriveButton.addEventListener('click', () => {
+            if (data.length === 0) {
+                alert("Não há dados para salvar no Google Drive.");
+                return;
+            }
+            // Simulação de salvamento no Google Drive
+            const jsonData = JSON.stringify(data);
+            console.lo

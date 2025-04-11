@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Perguntas Bíblicas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-blue-100 to-purple-100 flex justify-center items-center min-h-screen p-4">
+    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md transition-transform hover:scale-105">
+        <h1 class="text-2xl font-semibold text-blue-600 text-center mb-6">Quiz Bíblico</h1>
+        
+        <div id="capa-container" class="mb-6 text-center">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Bem-vindo ao Quiz Bíblico!</h2>
+            <p class="text-gray-700 mb-4">Teste seus conhecimentos sobre a Bíblia e divirta-se!</p>
+            <button id="iniciar-quiz" class="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-semibold rounded-md py-2 px-4 transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-purple-100">Iniciar Quiz</button>
+        </div>
+
+        <div id="pergunta-container" class="mb-6" style="display: none;">
+            <p id="pergunta" class="text-lg text-gray-800 text-center"></p>
+            <ul id="opcoes" class="mt-4 space-y-2">
+                </ul>
+        </div>
+        <div id="resultado" class="text-center text-lg font-semibold text-green-600 mb-6" style="display: none;"></div>
+        <button id="proximo-pergunta" class="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-semibold rounded-md py-2 px-4 w-full transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-purple-100" style="display: none;">Próxima Pergunta</button>
+        <button id="reiniciar-quiz" class="bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white font-semibold rounded-md py-2 px-4 w-full transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-pink-100" style="display: none;">Reiniciar Quiz</button>
+        <p id="mensagem" class="text-red-500 text-center mt-4"></p>
+    </div>
+
+    <script>
+        const perguntas = [
+            {
+                pergunta: "Qual é o primeiro livro da Bíblia?",
+                opcoes: ["Gênesis", "Êxodo", "Levítico", "Números"],
+                resposta: 0
+            },
+            {
+                pergunta: "Quem construiu a arca?",
+                opcoes: ["Abraão", "Moisés", "Noé", "Davi"],
+                resposta: 2
+            },
+            {
+                pergunta: "Quantos mandamentos Deus deu a Moisés?",
+                opcoes: ["5", "10", "12", "20"],
+                resposta: 1
+            },
+            {
+                pergunta: "Qual é o nome do primeiro rei de Israel?",
+                opcoes: ["Davi", "Salomão", "Saul", "Josias"],
+                resposta: 2
+            },
+            {
+                pergunta: "Quem foi jogado na cova dos leões?",
+                opcoes: ["José", "Daniel", "Isaías", "Jeremias"],
+                resposta: 1
+            },
+            {
+                pergunta: "Qual é o nome do rio em que Jesus foi batizado?",
+                opcoes: ["Nilo", "Jordão", "Eufrates", "Tigre"],
+                resposta: 1
+            },
+            {
+                pergunta: "Quantos discípulos Jesus tinha?",
+                opcoes: ["6", "10", "12", "15"],
+                resposta: 2
+            },
+            {
+                pergunta: "Qual foi o primeiro milagre de Jesus?",
+                opcoes: ["Curar um paralítico", "Transformar água em vinho", "Alimentar os 5000", "Ressuscitar Lázaro"],
+                resposta: 1
+            },
+            {
+                pergunta: "Quem traiu Jesus?",
+                opcoes: ["Pedro", "João", "Judas", "Mateus"],
+                resposta: 2
+            },
+            {
+                pergunta: "Qual é o último livro do Novo Testamento?",
+                opcoes: ["Atos", "Apocalipse", "Romanos", "Hebreus"],
+                resposta: 1
+            }
+        ];
+
+        let perguntaAtual = 0;
+        let pontuacao = 0;
+        let jogoTerminado = false;
+
+        const capaContainer = document.getElementById("capa-container");
+        const perguntaElemento = document.getElementById("pergunta");
+        const opcoesElemento = document.getElementById("opcoes");
+        const resultadoElemento = document.getElementById("resultado");
+        const proximoPerguntaBotao = document.getElementById("proximo-pergunta");
+        const reiniciarQuizBotao = document.getElementById("reiniciar-quiz");
+        const mensagemElemento = document.getElementById("mensagem");
+        const iniciarQuizBotao = document.getElementById("iniciar-quiz");
+
+
+        function carregarPergunta() {
+            mensagemElemento.textContent = "";
+            proximoPerguntaBotao.style.display = "none";
+            resultadoElemento.style.display = "none";
+            reiniciarQuizBotao.style.display = "none";
+            capaContainer.style.display = "none";
+            perguntaElemento.parentElement.style.display = "block";
+
+
+            const pergunta = perguntas[perguntaAtual];
+            perguntaElemento.textContent = pergunta.pergunta;
+            opcoesElemento.innerHTML = "";
+
+            pergunta.opcoes.forEach((opcao, indice) => {
+                const li = document.createElement("li");
+                li.textContent = opcao;
+                li.classList.add("bg-gradient-to-r", "from-yellow-200", "to-lime-200", "hover:from-yellow-300", "hover:to-lime-300", "rounded-md", "py-2", "px-4", "text-gray-700", "cursor-pointer", "transition", "duration-300", "ease-in-out", "shadow-md", "hover:shadow-lg", "text-center");
+                li.dataset.opcao = indice;
+                li.addEventListener("click", verificarResposta);
+                opcoesElemento.appendChild(li);
+            });
+        }
+
+        function verificarResposta(evento) {
+            const opcaoSelecionada = parseInt(evento.target.dataset.opcao);
+            const perguntaCorrente = perguntas[perguntaAtual];
+
+            if (jogoTerminado) {
+                return; // Impede que o código execute se o jogo terminou
+            }
+
+            if (opcaoSelecionada === perguntaCorrente.resposta) {
+                pontuacao++;
+                mensagemElemento.textContent = "Resposta correta!";
+            } else {
+                mensagemElemento.textContent = "Resposta incorreta!";
+            }
+
+            // Desabilita todas as opções após a seleção
+            Array.from(opcoesElemento.children).forEach(opcaoElemento => {
+                opcaoElemento.classList.remove("hover:from-yellow-300", "hover:to-lime-300", "cursor-pointer");
+                opcaoElemento.classList.add("opacity-70", "pointer-events-none");
+            });
+
+            if (perguntaAtual < perguntas.length - 1) {
+                proximoPerguntaBotao.style.display = "block";
+            } else {
+                jogoTerminado = true;
+                resultadoElemento.textContent = `Sua pontuação: ${pontuacao} de ${perguntas.length}!`;
+                resultadoElemento.style.display = "block";
+                reiniciarQuizBotao.style.display = "block";
+            }
+        }
+
+        function proximaPergunta() {
+            perguntaAtual++;
+            carregarPergunta();
+        }
+
+        function reiniciarQuiz() {
+            perguntaAtual = 0;
+            pontuacao = 0;
+            jogoTerminado = false;
+            resultadoElemento.style.display = "none";
+            proximoPerguntaBotao.style.display = "none";
+            reiniciarQuizBotao.style.display = "none";
+            capaContainer.style.display = "block";
+            perguntaElemento.parentElement.style.display = "none";
+            carregarPergunta();
+        }
+
+        iniciarQuizBotao.addEventListener("click", carregarPergunta);
+        proximoPerguntaBotao.addEventListener("click", proximaPergunta);
+        reiniciarQuizBotao.addEventListener("click", reiniciarQuiz);
+
+        //carregarPergunta(); // Removido para iniciar o jogo com a capa
+    </script>
+</body>
+</html>

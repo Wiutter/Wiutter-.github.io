@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Receitas Médicas Controladas Rainha da Paz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Estilo para usar a fonte Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Adiciona um pouco mais de espaço vertical entre os elementos do formulário */
+        .form-group > div {
+            margin-bottom: 1rem; /* Ajuste o valor conforme necessário */
+        }
+         /* Estilo para centralizar o formulário e adicionar um card */
+        .container {
+            max-width: 800px; /* Define a largura máxima do container */
+            margin: 2rem auto; /* Centraliza o container e adiciona margem superior/inferior */
+            padding: 2rem; /* Adiciona padding interno */
+            background-color: white; /* Fundo branco para o card */
+            border-radius: 0.5rem; /* Bordas arredondadas */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* Sombra suave */
+        }
+        /* Estilo para o título H1 */
+        h1 {
+            /* text-align: center; - Movido para classe Tailwind */
+            margin-bottom: 2rem;
+            font-weight: 600; /* Equivalente a font-semibold */
+        }
+         /* Ajuste para telas menores */
+         @media (max-width: 640px) {
+            .grid-cols-2 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)); /* Uma coluna em telas pequenas */
+            }
+            .container {
+                 margin: 1rem;
+                 padding: 1.5rem;
+            }
+            /* Empilha os botões em telas pequenas */
+            .button-container {
+                flex-direction: column;
+                align-items: stretch; /* Faz os botões ocuparem a largura total */
+            }
+            .button-container button {
+                width: 100%;
+                margin-bottom: 0.5rem; /* Espaço entre botões empilhados */
+            }
+             .button-container button:last-child {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <div class="container">
+        <h1 class="text-4xl sm:text-3xl font-semibold text-center mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent transition-transform duration-300 ease-in-out hover:scale-105">
+            Controle de Receitas Médicas Controladas Rainha da Paz
+        </h1>
+
+        <form id="prescription-form" action="#" method="POST" class="space-y-6">
+             <fieldset class="border p-4 rounded-md">
+                <legend class="text-lg font-medium text-gray-900 px-2">Informações do Paciente</legend>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 form-group">
+                    <div>
+                        <label for="patient-name" class="block text-sm font-medium text-gray-700">Nome Completo do Paciente</label>
+                        <input type="text" name="patient-name" id="patient-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="patient-cpf" class="block text-sm font-medium text-gray-700">CPF do Paciente</label>
+                        <input type="text" name="patient-cpf" id="patient-cpf" placeholder="000.000.000-00" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                     <div>
+                        <label for="patient-dob" class="block text-sm font-medium text-gray-700">Data de Nascimento</label>
+                        <input type="date" name="patient-dob" id="patient-dob" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="patient-phone" class="block text-sm font-medium text-gray-700">Telefone de Contato</label>
+                        <input type="tel" name="patient-phone" id="patient-phone" placeholder="(00) 00000-0000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="border p-4 rounded-md">
+                <legend class="text-lg font-medium text-gray-900 px-2">Informações do Médico</legend>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 form-group">
+                    <div>
+                        <label for="doctor-name" class="block text-sm font-medium text-gray-700">Nome Completo do Médico</label>
+                        <input type="text" name="doctor-name" id="doctor-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="doctor-crm" class="block text-sm font-medium text-gray-700">CRM</label>
+                        <input type="text" name="doctor-crm" id="doctor-crm" required placeholder="000000/UF" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="border p-4 rounded-md">
+                <legend class="text-lg font-medium text-gray-900 px-2">Detalhes da Prescrição</legend>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 form-group">
+                    <div>
+                        <label for="prescription-date" class="block text-sm font-medium text-gray-700">Data da Prescrição</label>
+                        <input type="date" name="prescription-date" id="prescription-date" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="medication-name" class="block text-sm font-medium text-gray-700">Nome do Medicamento</label>
+                        <input type="text" name="medication-name" id="medication-name" required list="medication-list" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <datalist id="medication-list">
+                            <option value="Clonazepam">
+                            <option value="Diazepam">
+                            <option value="Alprazolam">
+                            <option value="Zolpidem">
+                            <option value="Metilfenidato">
+                            <option value="Codeína">
+                            <option value="Morfina">
+                            <option value="Oxicodona">
+                            <option value="Sibutramina">
+                            <option value="Anfepramona">
+                            <option value="Fenproporex">
+                            <option value="Ritalina">
+                            <option value="Adderall">
+                            <option value="Concerta">
+                            <option value="Fentanil">
+                            <option value="Tramadol">
+                            <option value="Buprenorfina">
+                            <option value="Dextroanfetamina">
+                            <option value="Lisdexanfetamina">
+                            <option value="Atomoxetina">
+                            <option value="Venlafaxina">
+                            <option value="Duloxetina">
+                            <option value="Paroxetina">
+                            <option value="Sertralina">
+                            <option value="Fluoxetina">
+                            <option value="Escitalopram">
+                            <option value="Citalopram">
+                            <option value="Bupropiona">
+                            <option value="Trazodona">
+                            <option value="Nortriptilina">
+                            <option value="Amitriptilina">
+                            <option value="Clomipramina">
+                            <option value="Imipramina">
+                            <option value="Desipramina">
+                            <option value="Doxepina">
+                            <option value="Maprotilina">
+                            <option value="Mirtazapina">
+                            <option value="Agomelatina">
+                            <option value="Reboxetina">
+                            <option value="Selegilina">
+                            <option value="Rasagilina">
+                            <option value="Entacapona">
+                            <option value="Tolcapona">
+                            <option value="Bromocriptina">
+                            <option value="Cabergolina">
+                            <option value="Pramipexol">
+                            <option value="Ropinirol">
+                            <option value="Depakote">
+                            <option value="Depakene">
+                            </datalist>
+                        <p class="mt-1 text-xs text-gray-500">Comece a digitar ou clique para ver sugestões. Lista não exaustiva.</p>
+                    </div>
+                    <div>
+                        <label for="dosage" class="block text-sm font-medium text-gray-700">Dosagem</label>
+                        <input type="text" name="dosage" id="dosage" placeholder="Ex: 50mg, 10ml" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="quantity" class="block text-sm font-medium text-gray-700">Quantidade Prescrita</label>
+                        <input type="number" name="quantity" id="quantity" min="1" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                     <div class="md:col-span-2"> <label for="posology" class="block text-sm font-medium text-gray-700">Posologia (Instruções de Uso)</label>
+                        <textarea name="posology" id="posology" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Ex: Tomar 1 comprimido a cada 12 horas por 7 dias"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+
+             <fieldset class="border p-4 rounded-md">
+                <legend class="text-lg font-medium text-gray-900 px-2">Informações da Dispensação (Opcional)</legend>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 form-group">
+                    <div>
+                        <label for="pharmacy-name" class="block text-sm font-medium text-gray-700">Nome da Farmácia</label>
+                        <input type="text" name="pharmacy-name" id="pharmacy-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="dispensation-date" class="block text-sm font-medium text-gray-700">Data da Dispensação</label>
+                        <input type="date" name="dispensation-date" id="dispensation-date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                     <div>
+                        <label for="pharmacist-name" class="block text-sm font-medium text-gray-700">Nome do Farmacêutico</label>
+                        <input type="text" name="pharmacist-name" id="pharmacist-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                     <div>
+                        <label for="prescription-number" class="block text-sm font-medium text-gray-700">Número da Receita (se aplicável)</label>
+                        <input type="text" name="prescription-number" id="prescription-number" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="flex flex-col sm:flex-row justify-end pt-4 space-y-2 sm:space-y-0 sm:space-x-3 button-container">
+                 <button type="button" id="export-button" class="inline-flex justify-center py-2 px-4 border border-green-600 shadow-sm text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Exportar para Excel (.xlsx)
+                </button>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Registrar Receita (Ação Pendente)
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // --- Máscaras de Input ---
+        function applyMask(inputElement, maskFunction) {
+            if (inputElement) {
+                inputElement.addEventListener('input', (e) => {
+                    e.target.value = maskFunction(e.target.value);
+                });
+            }
+        }
+        function maskCPF(value) {
+            value = value.replace(/\D/g, '');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            return value.slice(0, 14);
+        }
+        function maskPhone(value) {
+            value = value.replace(/\D/g, '');
+            value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+            return value.slice(0, 15);
+        }
+        function maskCRM(value) {
+            value = value.toUpperCase().replace(/[^0-9A-Z]/g, '');
+             value = value.replace(/^(\d{1,6})([A-Z]{1,2})?.*$/, (match, p1, p2) => {
+                return p1 + (p2 ? '/' + p2 : '');
+            });
+             if (/^\d{6}$/.test(value) && value.length === 6) {
+                 value = value + '/';
+             }
+            return value.slice(0, 9);
+        }
+        applyMask(document.getElementById('patient-cpf'), maskCPF);
+        applyMask(document.getElementById('patient-phone'), maskPhone);
+        applyMask(document.getElementById('doctor-crm'), maskCRM);
+
+        // --- Funcionalidade de Exportação ---
+        const exportButton = document.getElementById('export-button');
+        const form = document.getElementById('prescription-form');
+        if (exportButton && form) {
+            exportButton.addEventListener('click', () => {
+                const formData = new FormData(form);
+                const fieldMappings = {
+                    'patient-name': 'Nome Paciente', 'patient-cpf': 'CPF Paciente', 'patient-dob': 'Nascimento Paciente', 'patient-phone': 'Telefone Paciente',
+                    'doctor-name': 'Nome Médico', 'doctor-crm': 'CRM Médico',
+                    'prescription-date': 'Data Prescrição', 'medication-name': 'Medicamento', 'dosage': 'Dosagem', 'quantity': 'Quantidade', 'posology': 'Posologia',
+                    'pharmacy-name': 'Farmácia', 'dispensation-date': 'Data Dispensação', 'pharmacist-name': 'Farmacêutico', 'prescription-number': 'Número Receita'
+                 };
+                 const exportData = {};
+                 for (const [key, value] of formData.entries()) {
+                     const header = fieldMappings[key] || key;
+                     exportData[header] = value;
+                 }
+                const dataArray = [exportData];
+                const ws = XLSX.utils.json_to_sheet(dataArray);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Receita");
+                const filename = `receita_${(exportData['Nome Paciente'] || 'export').replace(/ /g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`;
+                XLSX.writeFile(wb, filename);
+            });
+        }
+
+        // --- Prevenção de Submit ---
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Formulário "Registrado" (Ação de back-end não implementada). Use o botão Exportar para gerar o .xlsx.');
+        });
+    </script>
+
+</body>
+</html>

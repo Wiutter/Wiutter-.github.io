@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventário de TI Moderno</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Cor de fundo geral mais suave */
+        }
+        /* Estilos para as tabs */
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            padding-left: 0;
+            margin-bottom: 0;
+            list-style: none;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .nav-item {
+            margin-bottom: 0;
+        }
+        .nav-link {
+            display: block;
+            padding: 1.25rem 2rem; /* Aumentei o padding para melhor aparência */
+            border-radius: 0.375rem 0.375rem 0 0;
+            margin-right: 0.25rem; /* Aumentei o espaçamento entre as tabs */
+            border: 1px solid transparent;
+            transition: all 0.2s ease-in-out; /* Adicionei transição para cores e sombra */
+            cursor: pointer;
+            color: #4a5568;
+            font-weight: 600; /* Texto mais forte */
+            font-size: 1.1rem; /* Aumentei o tamanho da fonte */
+        }
+        .nav-link:hover, .nav-link:focus {
+            text-decoration: none;
+            border-color: #e2e8f0 #e2e8f0 #f7fafc;
+            background-color: #edf2f7;
+            color: #2d3748;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Adicionei sombra ao hover */
+        }
+        .nav-link.active {
+            color: #fff;
+            background-color: #4299e1;
+            border-color: #4299e1 #4299e1 #fff;
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15); /* Sombra mais pronunciada para a tab ativa */
+        }
+        .tab-content {
+            padding: 2rem; /* Aumentei o padding do conteúdo da tab */
+            border: 1px solid #e2e8f0;
+            border-radius: 0 0.375rem 0.375rem 0.375rem;
+            background-color: #fff;
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1); /* Adicionei sombra ao conteúdo da tab */
+        }
+        /* Estilos para a tabela */
+        .table-responsive {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .table {
+            width: 100%;
+            margin-bottom: 1.5rem; /* Aumentei a margem inferior da tabela */
+            color: #4a5568;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1); /* Sombra na tabela */
+        }
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 1.25rem; /* Aumentei o padding do cabeçalho */
+            text-align: left;
+            font-weight: 700; /* Cabeçalho em negrito */
+            color: #718096;
+            background-color: #f7fafc;
+            font-size: 1.1rem; /* Aumentei tamanho da fonte do cabeçalho */
+        }
+        .table tbody td,
+        .table tbody th {
+            padding: 1.25rem; /* Aumentei o padding das células */
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 1rem; /* Aumentei tamanho da fonte das células */
+        }
+        .table tbody tr:nth-of-type(odd) {
+            background-color: #f7fafc;
+        }
+        .table tbody tr:hover {
+            background-color: #edf2f7;
+            transition: background-color 0.2s ease-in-out; /* Transição mais suave */
+        }
+        .table td,
+        .table th {
+            vertical-align: top;
+        }
+        /* Estilos para botões */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.8rem 1.75rem; /* Aumentei o padding dos botões */
+            border-radius: 0.375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out; /* Transição mais suave */
+            border: 1px solid transparent;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            font-size: 1.1rem; /* Aumentei tamanho da fonte dos botões */
+        }
+        .btn-primary {
+            background-color: #4299e1;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background-color: #3182ce;
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15); /* Sombra maior no hover do botão primário */
+            transform: translateY(-1px); /* Leve elevação no hover */
+        }
+        .btn-outline-secondary {
+            background-color: transparent;
+            color: #4a5568;
+            border-color: #e2e8f0;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #edf2f7;
+            color: #2d3748;
+            border-color: #e2e8f0;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Adicionei sombra ao hover do botão secundário */
+            transform: translateY(-1px);
+        }
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 0.25rem;
+        }
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.8rem 1.25rem; /* Aumentei o padding do input */
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #4a5568;
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease-in-out; /* Transição mais suave */
+            appearance: none;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.25); /* Aumentei a intensidade da sombra no foco */
+        }
+        .form-group {
+            margin-bottom: 2rem; /* Aumentei a margem inferior do grupo de formulário */
+        }
+        .form-group label {
+            display: inline-block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #718096;
+            font-size: 1.1rem; /* Aumentei tamanho da fonte da label */
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mr-2 {
+            margin-right: 0.5rem;
+        }
+        .mb-4{
+            margin-bottom: 1.5rem;
+        }
+        /* Estilos para o modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal.show {
+            display: block;
+            opacity: 1;
+        }
+        .modal-dialog {
+            position: relative;
+            width: auto;
+            margin: 7.5% auto; /* Ajustei a margem do modal */
+            max-width: 600px; /* Aumentei a largura máxima do modal */
+        }
+        .modal-content {
+            background-color: #fff;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s;
+            border: 1px solid #e2e8f0; /* Adicionei borda ao modal content */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .modal-header h5 {
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 1.5rem; /* Aumentei o tamanho da fonte do título do modal */
+            color: #4a5568;
+            font-weight: 600;
+        }
+        .close {
+            color: #a0aec0;
+            font-size: 2rem; /* Aumentei o tamanho do botão fechar */
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out; /* Transição mais suave */
+            border: none;
+            background-color: transparent;
+            padding: 0;
+            margin-left: auto;
+            opacity: 0.7; /* Diminui a opacidade do botão fechar */
+        }
+        .close:hover,
+        .close:focus {
+            color: #2d3748;
+            text-decoration: none;
+            opacity: 1; /* Aumenta a opacidade no hover/foco */
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            border-radius: 0 0 0.375rem 0.375rem;
+        }
+        /* Estilos para o seletor personalizado */
+        .custom-select-wrapper {
+            position: relative;
+            user-select: none;
+            flex-grow: 1;
+            min-width: 250px; /* Aumentei a largura do seletor */
+        }
+
+        .custom-select-trigger {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 1.25rem; /* Mesmos estilos de padding do input */
+            font-size: 1rem;
+            line-height: 1.5;
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out; /* Transição mais suave */
+            color: #4a5568;
+        }
+
+        .custom-select-trigger:hover,
+        .custom-select-wrapper:focus-within .custom-select-trigger {
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.25); /* Aumentei a intensidade da sombra no hover/foco */
+        }
+
+        .custom-select-trigger span {
+            margin-right: 0.75rem; /* Aumentei o espaçamento do texto no trigger */
+            font-size: 1.1rem; /* Aumentei tamanho da fonte do texto do trigger */
+        }
+
+        .custom-select-trigger svg {
+            height: 1.25rem; /* Aumentei o tamanho do ícone */
+            width: 1.25rem;
+            fill: currentColor;
+            color: #718096;
+            transition: transform 0.2s ease-in-out; /* Adicionei transição para rotação do ícone */
+        }
+
+        .custom-select-wrapper.open .custom-select-trigger svg {
+            transform: rotate(180deg); /* Rotação do ícone quando o select está aberto */
+        }
+
+        .custom-options {
+            position: fixed;
+            top: 100%;
+            left: 0;
+            right: auto;
+            z-index: 2;
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            margin-top: 0.25rem;
+            overflow: auto;
+            max-height: 250px; /* Aumentei a altura máxima das opções */
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.15s ease-in-out, visibility 0.15s ease-in-out, transform 0.15s ease-in-out;
+        }
+
+        .custom-select-wrapper.open .custom-options {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .custom-options li {
+            padding: 0.8rem 1.25rem; /* Mesmos estilos de padding do input */
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #4a5568;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Transição mais suave */
+            white-space: nowrap;
+        }
+
+        .custom-options li:hover,
+        .custom-options li.selected {
+            background-color: #3182ce;
+            color: #fff;
+        }
+
+        .custom-select-wrapper select {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-semibold text-gray-800 mb-8 text-center">Inventário de TI</h1>
+
+        <ul class="nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="status-tab" data-toggle="tab" href="#status" role="tab" aria-controls="status" aria-selected="true">Status</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="registro-windows-tab" data-toggle="tab" href="#registro-windows" role="tab" aria-controls="registro-windows" aria-selected="false">Registro Windows</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="registro-office-tab" data-toggle="tab" href="#registro-office" role="tab" aria-controls="registro-office" aria-selected="false">Registro Office</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="patrimonio-tab" data-toggle="tab" href="#patrimonio" role="tab" aria-controls="patrimonio" aria-selected="false">Patrimônio</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="nota-fiscal-tab" data-toggle="tab" href="#nota-fiscal" role="tab" aria-controls="nota-fiscal" aria-selected="false">Nota Fiscal</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="setor-tab" data-toggle="tab" href="#setor" role="tab" aria-controls="setor" aria-selected="false">Setor</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="usuario-tab" data-toggle="tab" href="#usuario" role="tab" aria-controls="usuario" aria-selected="false">Usuário</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="host-name-tab" data-toggle="tab" href="#host-name" role="tab" aria-controls="host-name" aria-selected="false">Host Name</a>
+            </li>
+             <li class="nav-item" role="presentation">
+                <a class="nav-link" id="tipo-tab" data-toggle="tab" href="#tipo" role="tab" aria-controls="tipo" aria-selected="false">Tipo</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="modelo-tab" data-toggle="tab" href="#modelo" role="tab" aria-controls="modelo" aria-selected="false">Modelo</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="fabricante-tab" data-toggle="tab" href="#fabricante" role="tab" aria-controls="fabricante" aria-selected="false">Fabricante</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="service-tag-tab" data-toggle="tab" href="#service-tag" role="tab" aria-controls="service-tag" aria-selected="false">Service Tag Conexão</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="sistema-operacional-tab" data-toggle="tab" href="#sistema-operacional" role="tab" aria-controls="sistema-operacional" aria-selected="false">Sistema Operacional</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="memoria-ram-tab" data-toggle="tab" href="#memoria-ram" role="tab" aria-controls="memoria-ram" aria-selected="false">Memória RAM</a>
+            </li>
+             <li class="nav-item" role="presentation">
+                <a class="nav-link" id="frequencia-tab" data-toggle="tab" href="#frequencia" role="tab" aria-controls="frequencia" aria-selected="false">Frequência (MHz)</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="tipo-hd-tab" data-toggle="tab" href="#tipo-hd" role="tab" aria-controls="tipo-hd" aria-selected="false">Tipo de HD</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="status" role="tabpanel" aria-labelledby="status-tab">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="status-table-body">
+                            <tr>
+                                <td>1</td>
+                                <td>Em Estoque</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary mr-2" data-id="1" data-type="status">Editar</button>
+                                    <button class="btn btn-sm btn-danger" data-id="1" data-type="status">Excluir</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-primary mb-4" id="add-status-button">Adicionar Status</button>
+            </div>
+            <div class="tab-pane fade" id="registro-windows" role="tabpanel" aria-labelledby="registro-windows-tab">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Registro Windows</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registro-windows-table-body">
+                            <tr>
+                                <td>1</td>
+                                <td>Sim</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary mr-2" data-id="1" data-type="registro-windows">Editar</button>
+                                    <button class="btn btn-sm btn-danger" data-id="1" data-type="registro-windows">Excluir</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                 <button class="btn btn-primary mb-4" id="add-registro-windows-button">Adicionar Registro Windows</button>
+            </div>
+            <div class="tab-pane fade" id="registro-office" role="tabpanel" aria-labelledby="registro-office-tab">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Registro Office</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registro-office-table-body">
+                            <tr>
+                                <td>1</td>
+                                <td>Sim</td>
+                                 <td>
+                                    <button class="btn btn-sm btn-outline-secondary mr-2" data-id="1" data-type="registro-office">Editar</button>
+                                    <button class="btn btn-sm btn-danger" data-id="1" data-type="registro-office">Excluir</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-primary mb-4" id="add-registro-office-button">Adicionar Registro Office</button>
+            </div>
+            <div class="tab-pane fade" id="patrimonio" role="tabpanel" aria-labelledby="patrimonio-tab">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patrimô

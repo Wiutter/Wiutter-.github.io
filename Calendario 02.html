@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Futurista</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .calendar-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.1); /* Fundo quase transparente */
+            border-radius: 1rem;
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2); /* Sombra mais suave */
+            backdrop-filter: blur(10px); /* Adiciona um efeito de blur ao fundo */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Adiciona uma borda sutil */
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+        .month-navigation button {
+            background-color: rgba(255, 255, 255, 0.2); /* Botões levemente transparentes */
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves */
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; /* Adiciona negrito ao texto do botão */
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1); /* Sombra sutil */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Adiciona borda aos botões */
+        }
+        .month-navigation button:hover {
+            background-color: rgba(255, 255, 255, 0.3); /* Levemente mais claro no hover */
+            transform: scale(1.05); /* Aumenta um pouco no hover */
+        }
+        .month-navigation h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+        .day {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Borda nos dias */
+            border-radius: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.05); /* Dias mais transparentes */
+            color: #fff;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transição suave */
+            cursor: pointer; /* Adiciona cursor de pointer */
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05); /* Sombra muito sutil */
+        }
+        .day:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Levemente mais claro no hover */
+            transform: scale(1.02); /* Aumenta levemente no hover */
+        }
+        .day.today {
+            background-color: rgba(100, 200, 255, 0.3); /* Cor de destaque para o dia atual */
+            font-weight: bold;
+        }
+        .day.selected {
+            background-color: rgba(150, 220, 255, 0.5); /* Cor de seleção */
+        }
+        .task-list {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1); /* Fundo da lista de tarefas */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Borda na lista de tarefas */
+            color: #fff;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1); /* Sombra sutil */
+        }
+        .task-list h3 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Separador sutil */
+            padding-bottom: 0.5rem;
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Separador entre tarefas */
+        }
+        .task-item:last-child {
+            border-bottom: none; /* Remove o separador da última tarefa */
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        .task-item span {
+            font-size: 1rem;
+        }
+        .add-task-form {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .add-task-form input {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Borda no input */
+            background-color: rgba(255, 255, 255, 0.05); /* Fundo do input */
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, border-color 0.3s ease; /* Transições suaves */
+        }
+        .add-task-form input::placeholder {
+            color: rgba(255, 255, 255, 0.5); /* Cor do placeholder */
+        }
+        .add-task-form input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.1); /* Fundo do input no foco */
+            border-color: rgba(255, 255, 255, 0.3); /* Borda do input no foco */
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1); /* Sombra no foco */
+        }
+        .add-task-form button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            background-color: rgba(100, 200, 255, 0.8); /* Cor do botão de adicionar */
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves */
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1); /* Sombra sutil */
+        }
+        .add-task-form button:hover {
+            background-color: rgba(100, 200, 255, 1); /* Mais vibrante no hover */
+            transform: scale(1.05); /* Aumenta um pouco no hover */
+        }
+        .add-task-form button:disabled {
+            background-color: rgba(100, 100, 100, 0.5); /* Cor do botão desabilitado */
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        #message-box {
+            position: fixed; /* Posição fixa na tela */
+            top: 2rem; /* Distância do topo */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translateX(-50%); /* Centraliza corretamente */
+            background-color: rgba(0, 200, 100, 0.9); /* Fundo verde semi-transparente */
+            color: #fff; /* Texto branco */
+            padding: 1rem 2rem; /* Espaçamento interno */
+            border-radius: 0.5rem; /* Bordas arredondadas */
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2); /* Sombra para destaque */
+            z-index: 1000; /* Garante que a mensagem fique acima de outros elementos */
+            opacity: 0; /* Inicialmente invisível */
+            transition: opacity 0.3s ease, transform 0.3s ease; /* Transições suaves */
+        }
+
+        #message-box.show {
+            opacity: 1; /* Torna a mensagem visível */
+            transform: translateX(-50%) translateY(0); /* Move para cima se necessário */
+        }
+
+        #message-box.error {
+            background-color: rgba(200, 50, 50, 0.9);
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900 text-white p-4 flex justify-center items-start min-h-screen">
+    <div class="calendar-container">
+        <div class="header">
+            <div class="month-navigation">
+                <button id="prev-month">❮</button>
+                <h2 id="month-name" class="text-xl font-semibold">Mês</h2>
+                <button id="next-month">❯</button>
+            </div>
+            <div id="date-info" class="text-md">
+                <p id="day-name"></p>
+                <p id="full-date"></p>
+            </div>
+        </div>
+        <div class="calendar-grid" id="calendar-grid">
+            </div>
+        <div class="task-list">
+            <h3>Lista de Tarefas</h3>
+            <div id="task-items">
+                </div>
+        </div>
+        <form class="add-task-form" id="add-task-form">
+            <input type="text" id="task-input" placeholder="Adicionar nova tarefa..." />
+            <button type="submit" id="add-task-button">Adicionar Tarefa</button>
+        </form>
+        <div id="message-box" class="hidden"></div>
+    </div>
+
+    <script>
+        const calendarGrid = document.getElementById("calendar-grid");
+        const monthName = document.getElementById("month-name");
+        const dayName = document.getElementById("day-name");
+        const fullDate = document.getElementById("full-date");
+        const prevMonthBtn = document.getElementById("prev-month");
+        const nextMonthBtn = document.getElementById("next-month");
+        const taskList = document.getElementById("task-items");
+        const addTaskForm = document.getElementById("add-task-form");
+        const taskInput = document.getElementById("task-input");
+        const addTaskButton = document.getElementById("add-task-button");
+        const messageBox = document.getElementById("message-box");
+
+        let currentDate = new Date();
+        let selectedDate = currentDate;
+        let tasks = {}; // Armazena as tarefas por data
+
+        function updateCalendar() {
+            calendarGrid.innerHTML = "";
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            monthName.textContent = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
+
+            for (let i = 0; i < firstDay; i++) {
+                calendarGrid.innerHTML += `<div class="day empty"></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const isToday = date.toDateString() === new Date().toDateString();
+                const isSelected = date.toDateString() === selectedDate.toDateString();
+                const dayTasks = tasks[date.toDateString()] || [];
+                let dayContent = `<div class="day ${isToday ? "today" : ""} ${isSelected ? "selected" : ""}">${day}`;
+                if (dayTasks.length > 0) {
+                    dayContent += `<div class="tasks-indicator">${dayTasks.length} tarefa${dayTasks.length > 1 ? 's' : ''}</div>`;
+                }
+                dayContent += `</div>`;
+                calendarGrid.innerHTML += dayContent;
+            }
+            updateDateInfo();
+            displayTasks();
+        }
+
+        function updateDateInfo() {
+            const dayOfWeek = selectedDate.toLocaleString("default", { weekday: "long" });
+            const fullDateString = selectedDate.toLocaleDateString("pt-BR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            });
+
+            dayName.textContent = dayOfWeek;
+            fullDate.textContent = fullDateString;
+        }
+
+        function displayTasks() {
+            taskList.innerHTML = "";
+            const selectedDateTasks = tasks[selectedDate.toDateString()] || [];
+            if (selectedDateTasks.length === 0) {
+                taskList.innerHTML += `<p>Nenhuma tarefa para este dia.</p>`;
+            } else {
+                selectedDateTasks.forEach((task, index) => {
+                    taskList.innerHTML += `<div class="task-item">
+                                            <span>${task}</span>
+                                            <button data-index="${index}" class="delete-btn text-red-500 hover:text-red-700 transition-colors font-bold">✕</button>
+                                          </div>`;
+                });
+            }
+
+            // Adiciona event listener para botões de deletar dinamicamente
+            const deleteButtons = taskList.querySelectorAll('.delete-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const indexToDelete = event.target.dataset.index;
+                    deleteTask(indexToDelete);
+                });
+            });
+        }
+
+        function addTask(event) {
+            event.preventDefault();
+            const taskText = taskInput.value.trim();
+            if (taskText === "") {
+                showMessage('Por favor, insira uma tarefa.', 'error');
+                return;
+            }
+            if (!tasks[selectedDate.toDateString()]) {
+                tasks[selectedDate.toDateString()] = [];
+            }
+            tasks[selectedDate.toDateString()].push(taskText);
+            saveTasks();
+            taskInput.value = "";
+            updateCalendar();
+            showMessage('Tarefa adicionada com sucesso!');
+        }
+
+        function deleteTask(index) {
+            const dayTasks = tasks[selectedDate.toDateString()];
+            if (dayTasks && dayTasks.length > 0) {
+                dayTasks.splice(index, 1);
+                saveTasks();
+                updateCalendar(); // Atualiza o calendário para refletir a mudança
+                showMessage('Tarefa removida com sucesso!');
+            }
+        }
+
+        function showMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = `fixed top-4 left-1/2 transform -translate-x-1/2 bg-${type === 'success' ? 'green' : 'red'}-500 text-white px-4 py-2 rounded shadow-md z-50`;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+
+        function loadTasks() {
+            const savedTasks = localStorage.getItem("tasks");
+            if (savedTasks) {
+                try {
+                    tasks = JSON.parse(savedTasks);
+                    // Converte as chaves de string para objetos Date
+                    Object.keys(tasks).forEach(key => {
+                        const dateObj = new Date(key);
+                        if (dateObj instanceof Date && !isNaN(dateObj)) {
+                            tasks[dateObj.toDateString()] = tasks[key];
+                            delete tasks[key]; // Remove a chave antiga (string)
+                        }
+                    });
+                } catch (error) {
+                    console.error("Erro ao analisar tarefas salvas:", error);
+                    tasks = {};
+                }
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        prevMonthBtn.addEventListener("click", () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        });
+
+        nextMonthBtn.addEventListener("click", () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        });
+
+        calendarGrid.addEventListener("click", (event) => {
+            const clickedDay = event.target.textContent;
+            if (clickedDay && !isNaN(parseInt(clickedDay))) {
+                selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), parseInt(clickedDay));
+                updateCalendar(); // Atualiza o calendário para refletir a seleção
+            }
+        });
+
+        addTaskForm.addEventListener("submit", addTask);
+
+        loadTasks();
+        updateCalendar();
+    </script>
+</body>
+</html>

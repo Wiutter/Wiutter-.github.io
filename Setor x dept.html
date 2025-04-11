@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planilha de Inventário de TI RAINHA DA</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .hidden {
+            display: none;
+        }
+        .visible {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <h1 class="text-2xl font-semibold text-center text-gray-800 mb-8">Planilha de Inventário de TI</h1>
+
+    <div class="overflow-x-auto rounded-lg shadow-sm">
+        <table class="min-w-full bg-white rounded-md">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipamento</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Setor</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departamento</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsável</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="inventory-table-body">
+                </tbody>
+        </table>
+    </div>
+
+    <div class="mt-8 p-4 bg-white rounded-lg shadow-md">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Adicionar Equipamento</h2>
+        <form id="add-equipment-form" class="space-y-4">
+            <div class="space-y-2">
+                <label for="equipment-name" class="block text-gray-700 text-sm font-bold mb-1">Nome do Equipamento:</label>
+                <input type="text" id="equipment-name" placeholder="Ex: Notebook" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <div id="equipment-name-error" class="text-red-500 text-xs italic hidden"></div>
+            </div>
+            <div class="space-y-2">
+                <label for="equipment-sector" class="block text-gray-700 text-sm font-bold mb-1">Setor:</label>
+                <input type="text" id="equipment-sector" placeholder="Ex: Administrativo" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <div id="equipment-sector-error" class="text-red-500 text-xs italic hidden"></div>
+            </div>
+            <div class="space-y-2">
+                <label for="equipment-department" class="block text-gray-700 text-sm font-bold mb-1">Departamento:</label>
+                <input type="text" id="equipment-department" placeholder="Ex: Financeiro" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                 <div id="equipment-department-error" class="text-red-500 text-xs italic hidden"></div>
+            </div>
+            <div class="space-y-2">
+                <label for="equipment-responsible" class="block text-gray-700 text-sm font-bold mb-1">Responsável:</label>
+                <input type="text" id="equipment-responsible" placeholder="Ex: João Silva" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <div id="equipment-responsible-error" class="text-red-500 text-xs italic hidden"></div>
+            </div>
+            <div class="space-y-2">
+                <label for="equipment-quantity" class="block text-gray-700 text-sm font-bold mb-1">Quantidade:</label>
+                <input type="number" id="equipment-quantity" value="1" min="1" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <div id="equipment-quantity-error" class="text-red-500 text-xs italic hidden"></div>
+            </div>
+            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Adicionar Equipamento</button>
+        </form>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="sector-chart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="equipment-chart"></canvas>
+    </div>
+
+    <div class="mt-8">
+        <button id="export-excel-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Exportar para Excel</button>
+    </div>
+
+    <script>
+        const inventoryTableBody = document.getElementById('inventory-table-body');
+        const addEquipmentForm = document.getElementById('add-equipment-form');
+        const equipmentNameInput = document.getElementById('equipment-name');
+        const equipmentSectorInput = document.getElementById('equipment-sector');
+        const equipmentDepartmentInput = document.getElementById('equipment-department');
+        const equipmentResponsibleInput = document.getElementById('equipment-responsible');
+        const equipmentQuantityInput = document.getElementById('equipment-quantity');
+        const equipmentNameError = document.getElementById('equipment-name-error');
+        const equipmentSectorError = document.getElementById('equipment-sector-error');
+        const equipmentDepartmentError = document.getElementById('equipment-department-error');
+        const equipmentResponsibleError = document.getElementById('equipment-responsible-error');
+        const equipmentQuantityError = document.getElementById('equipment-quantity-error');
+        const exportExcelBtn = document.getElementById('export-excel-btn');
+
+        let inventoryData = [];
+        let totalItems = 0;
+
+        const sectorCtx = document.getElementById('sector-chart').getContext('2d');
+        let sectorChart;
+        const equipmentCtx = document.getElementById('equipment-chart').getContext('2d');
+        let equipmentChart;
+
+        function initCharts() {
+            sectorChart = new Chart(sectorCtx, {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Equipamentos por Setor',
+                        data: [],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)',
+                            'rgba(255, 159, 64, 0.6)',
+                            'rgba(128, 0, 128, 0.6)',
+                            'rgba(0, 128, 0, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(128, 0, 128, 1)',
+                            'rgba(0, 128, 0, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Equipamentos por Setor',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            equipmentChart = new Chart(equipmentCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Quantidade em Estoque',
+                        data: [],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)',
+                            'rgba(255, 159, 64, 0.6)',
+                            'rgba(128, 0, 128, 0.6)',
+                            'rgba(0, 128, 0, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(128, 0, 128, 1)',
+                            'rgba(0, 128, 0, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Quantidade de Equipamentos em Estoque',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            const sectorData = {};
+            inventoryData.forEach(item => {
+                if (sectorData[item.sector]) {
+                    sectorData[item.sector] += item.quantity;
+                } else {
+                    sectorData[item.sector] = item.quantity;
+                }
+            });
+
+            sectorChart.data.labels = Object.keys(sectorData);
+            sectorChart.data.datasets[0].data = Object.values(sectorData);
+            sectorChart.update();
+
+            equipmentChart.data.labels = inventoryData.map(item => item.name);
+            equipmentChart.data.datasets[0].data = inventoryData.map(item => item.quantity);
+            equipmentChart.update();
+        }
+
+        function calculateTotals() {
+            totalItems = inventoryData.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        function renderInventoryTable() {
+            inventoryTableBody.innerHTML = '';
+            inventoryData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.sector}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.department}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.responsible}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.quantity}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="edit-btn bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2" data-index="${index}">Editar</button>
+                        <button class="delete-btn bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" data-index="${index}">Excluir</button>
+                    </td>
+                `;
+                inventoryTableBody.appendChild(row);
+            });
+
+            const footerRow = document.createElement('tr');
+            footerRow.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Total</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700"></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700"></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700"></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">${totalItems}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"></td>
+            `;
+            inventoryTableBody.appendChild(footerRow);
+
+            // Adiciona event listeners aos botões de editar e excluir
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const index = parseInt(button.dataset.index);
+                    editEquipment(index);
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const index = parseInt(button.dataset.index);
+                    deleteEquipment(index);
+                });
+            });
+        }
+
+        function addEquipment(event) {
+            event.preventDefault();
+
+            let equipmentName = equipmentNameInput.value.trim();
+            let equipmentSector = equipmentSectorInput.value.trim();
+            let equipmentDepartment = equipmentDepartmentInput.value.trim();
+            let equipmentResponsible = equipmentResponsibleInput.value.trim();
+            let quantity = parseInt(equipmentQuantityInput.value);
+
+            let hasErrors = false;
+
+            if (!equipmentName) {
+                equipmentNameError.textContent = "Por favor, insira o nome do equipamento.";
+                equipmentNameError.classList.remove('hidden');
+                hasErrors = true;
+            } else {
+                equipmentNameError.classList.add('hidden');
+            }
+             if (!equipmentSector) {
+                equipmentSectorError.textContent = "Por favor, insira o setor do equipamento.";
+                equipmentSectorError.classList.remove('hidden');
+                hasErrors = true;
+            } else {
+                equipmentSectorError.classList.add('hidden');
+            }
+            if (!equipmentDepartment) {
+                equipmentDepartmentError.textContent = "Por favor, insira o departamento do equipamento.";
+                equipmentDepartmentError.classList.remove('hidden');
+                hasErrors = true;
+            } else {
+                equipmentDepartmentError.classList.add('hidden');
+            }
+            if (!equipmentResponsible) {
+                equipmentResponsibleError.textContent = "Por favor, insira o responsável pelo equipamento.";
+                equipmentResponsibleError.classList.remove('hidden');
+                hasErrors = true;
+            } else {
+                equipmentResponsibleError.classList.add('hidden');
+            }
+
+            if (isNaN(quantity) || quantity < 1) {
+                equipmentQuantityError.textContent = "Por favor, insira uma quantidade válida (maior que 0).";
+                equipmentQuantityError.classList.remove('hidden');
+                hasErrors = true;
+            } else {
+                equipmentQuantityError.classList.add('hidden');
+            }
+
+            if (hasErrors) {
+                return;
+            }
+
+            const existingEquipmentIndex = inventoryData.findIndex(item => item.name.toLowerCase() === equipmentName.toLowerCase());
+
+            if (existingEquipmentIndex > -1) {
+                // Atualiza a quantidade do equipamento existente
+                inventoryData[existingEquipmentIndex].quantity += quantity;
+            } else {
+                // Adiciona um novo equipamento
+                inventoryData.push({
+                    name: equipmentName,
+                    sector: equipmentSector,
+                    department: equipmentDepartment,
+                    responsible: equipmentResponsible,
+                    quantity: quantity
+                });
+            }
+
+            calculateTotals();
+            renderInventoryTable();
+            updateCharts();
+
+            equipmentNameInput.value = '';
+            equipmentSectorInput.value = '';
+            equipmentDepartmentInput.value = '';
+            equipmentResponsibleInput.value = '';
+            equipmentQuantityInput.value = '1';
+        }
+
+        function editEquipment(index) {
+            const equipment = inventoryData[index];
+
+            equipmentNameInput.value = equipment.name;
+            equipmentSectorInput.value = equipment.sector;
+            equipmentDepartmentInput.value = equipment.department;
+            equipmentResponsibleInput.value = equipment.responsible;
+            equipmentQuantityInput.value = equipment.quantity;
+
+            // Remove o equipamento da lista para que ele não seja duplicado ao adicionar a versão editada
+            inventoryData.splice(index, 1);
+
+            // Atualiza o título do formulário para indicar que estamos editando
+            const submitButton = document.querySelector('#add-equipment-form button[type="submit"]');
+            submitButton.textContent = 'Salvar Edição';
+
+            // Adiciona um event listener para lidar com o envio do formulário de edição
+            addEquipmentForm.removeEventListener('submit', addEquipment); // Remove o listener anterior
+            addEquipmentForm.addEventListener('submit', handleEditSubmit); // Adiciona o novo listener
+
+            function handleEditSubmit(event) {
+                event.preventDefault();
+
+                let newEquipmentName = equipmentNameInput.value.trim();
+                let newEquipmentSector = equipmentSectorInput.value.trim();
+                let newEquipmentDepartment = equipmentDepartmentInput.value.trim();
+                let newEquipmentResponsible = equipmentResponsibleInput.value.trim();
+                let newQuantity = parseInt(equipmentQuantityInput.value);
+
+                let hasErrors = false;
+
+                 if (!newEquipmentName) {
+                    equipmentNameError.textContent = "Por favor, insira o nome do equipamento.";
+                    equipmentNameError.classList.remove('hidden');
+                    hasErrors = true;
+                } else {
+                    equipmentNameError.classList.add('hidden');
+                }
+                 if (!newEquipmentSector) {
+                    equipmentSectorError.textContent = "Por favor, insira o setor do equipamento.";
+                    equipmentSectorError.classList.remove('hidden');
+                    hasErrors = true;
+                } else {
+                    equipmentSectorError.classList.add('hidden');
+                }
+                if (!newEquipmentDepartment) {
+                    equipmentDepartmentError.textContent = "Por favor, insira o departamento do equipamento.";
+                    equipmentDepartmentError.classList.remove('hidden');
+                    hasErrors = true;
+                } else {
+                    equipmentDepartmentError.classList.add('hidden');
+                }
+                if (!newEquipmentResponsible) {
+                    equipmentResponsibleError.textContent = "Por favor, insira o responsável pelo equipamento.";
+                    equipmentResponsibleError.classList.remove('hidden');
+                    hasErrors = true;
+                } else {
+                    equipmentResponsibleError.classList.add('hidden');
+                }
+
+                if (isNaN(newQuantity) || newQuantity < 1) {
+                    equipmentQuantityError.textContent = "Por favor, insira uma quantidade válida (maior que 0).";
+                    equipmentQuantityError.classList.remove('hidden');
+                    hasErrors = true;
+                } else {
+                    equipmentQuantityError.classList.add('hidden');
+                }
+
+                if (hasErrors) {
+                    return;
+                }
+
+                const existingEquipmentIndex = inventoryData.findIndex(item => item.name.toLowerCase() === newEquipmentName.toLowerCase());
+                if (existingEquipmentIndex > -1) {
+                    inventoryData[existingEquipmentIndex].quantity = newQuantity;
+                } else {
+                    inventoryData.push({
+                        name: newEquipmentName,
+                        sector: newEquipmentSector,
+                        department: newEquipmentDepartment,
+                        responsible: newEquipmentResponsible,
+                        quantity: newQuantity
+                    });
+                }
+
+                // Restaura o formulário para o modo de adição
+                submitButton.textContent = 'Adicionar Equipamento';
+                addEquipmentForm.removeEventListener('submit', handleEditSubmit); // Remove o listener de edição
+                addEquipmentForm.addEventListener('submit', addEquipment);         // Adiciona o listener de adição
+
+                equipmentNameInput.value = '';
+                equipmentSectorInput.value = '';
+                equipmentDepartmentInput.value = '';
+                equipmentResponsibleInput.value = '';
+                equipmentQuantityInput.value = '1';
+
+                calculateTotals();
+                renderInventoryTable();
+                updateCharts();
+            }
+        }
+
+        function deleteEquipment(index) {
+            inventoryData.splice(index, 1);
+            calculateTotals();
+            renderInventoryTable();
+            updateCharts();
+        }
+
+        function exportToExcel() {
+            if (inventoryData.length === 0) {
+                alert('Não há dados para exportar.');
+                return;
+            }
+
+            const data = inventoryData.map(item => ({
+                Nome: item.name,
+                Setor: item.sector,
+                Departamento: item.department,
+                Responsável: item.responsible,
+                Quantidade: item.quantity
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventário de TI');
+            XLSX.writeFile(workbook, 'inventario_ti.xlsx');
+        }
+
+        addEquipmentForm.addEventListener('submit', addEquipment);
+        exportExcelBtn.addEventListener('click', exportToExcel);
+
+        initCharts();
+        renderInventoryTable();
+    </script>
+</body>
+</html>

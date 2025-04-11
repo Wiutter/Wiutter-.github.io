@@ -1,0 +1,206 @@
+import React, { useState, useEffect } from 'react';
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface DataEntry {
+    [key: string]: string;
+}
+
+const App = () => {
+    const [pageData, setPageData] = useState<DataEntry[][]>([]);
+
+    useEffect(() => {
+        const parseData = (text: string): DataEntry[] => {
+            const lines = text.trim().split('\n').map(line => line.trim());
+            if (!lines || lines.length === 0) return [];
+
+            const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+            const data: DataEntry[] = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
+                const entry: DataEntry = {};
+                headers.forEach((header, index) => {
+                    let val = values[index] ? values[index].replace(/(\r\n|\n|\r)/gm, " ") : '';
+                    val = val.split(/(?=[A-Z])/).join(" ");
+                    entry[header] = val;
+                });
+                data.push(entry);
+            }
+            return data;
+        };
+
+        const pageTexts = [
+            `
+"USUARIO",,,,"USUARIO","EMAIL OUTLOOK","SENHA OUT","EMAIL GMAIL","SENHA GMAIL"
+"Tec infor","suporte.ti@abcrainhadapaz.org.br","Sup*2024@rpz","suporte.ti@abcrainhadapaz.org.br","Sup#5060#4154#rpz"
+"Luciene.Dias","medico@abcrainhadapaz.org.br","medrp@1833",,
+"Luzia.Silva","diretoria@abcrainhadapaz.org.br","Dr#rp2001",,
+"Luzeni. Morais lana.Santos Walter.Nicolosi Erineide.Paula Maria.Gamboa Usado pela Dani por enquanto Samuel.Andrade","salaapoioassistidos@abcrainhadapaz.org.br presidente@abcrainhadapaz.org.br pedagogia@abcrainhadapaz.org.br to2@abcrainhadapaz.org.br rh@abcrainhadapaz.org.br enfermagem@abcrainhadapaz.org.br enfermagem1@abcrainhadapaz.org.br","Apoio@2024 PR$dt@20 pdg16266 Trop@2021 r&C21$h@01 enfe8425 Enfe#2021"," rh.rpaz@gmail.com enfermagem@abcrainhadapaz.org.br enfermagem2@gmail.com","Rh-paz@2019 ENF@2024 Enf@2024"
+"Mariana. Santos","informatica@abcrainhadapaz.org.br","Info@2745",,
+"Diego. Siqueira","estoque@abcrainhadapaz.org.br","Est@2025",,
+"Reserva","fonoaudiologia3@abcrainhadapaz.org.br","Fnd@2022",,
+"Josivânia. Santos","enfermagem2@abcrainhadapaz.org.br","Enf@2019","enfermagem3@gmail.com","Enfer@2024"
+"Rafaela.Almeida","doacao2@abcrainhadapaz.org.br","Doa@2022",,
+"Ana. Almeida","despensa@abcrainhadapaz.org.br","Dspn#741",,
+"Debora.Melgar","psicologia3@abcrainhadapaz.org.br","Psi@2023","psicologiarainha1@gmail.com","Psi@1833"
+"Ana.Ciriaco","adm2@abcrainhadapaz.org.br","Ad#2024*",,
+`,
+            `
+"USUARIO",,,,"USUARIO","EMAIL OUTLOOK","SENHA OUT","EMAIL GMAIL","SENHA GMAIL"
+"laleska.silva","recepcao1@abcrainhadapaz.org.br","Abcrep2023@","recepcao1@abcrainhadapaz.org.br","Rainha@2024"
+"Rayssa. Maia","comunicacao1@abcrainhadapaz.org.br","Cmn@2022","padrinhorainhadapaz@gmail.com","padrinho2016"
+"Valdemir.Assis","ti@abcrainhadapaz.org.br","Rp25*2319",,
+"Valeria. Matos","oficineira@abcrainhadapaz.org.br","Ofcn#2022",,
+"Daniele. Rodrigues","coordenacao@abcrainhadapaz.org.br","coord8526",,
+"Izabely.Marcos","fisioterapia@abcrainhadapaz.org.br","fisio8564$",,
+"Valdemir.Assis","ti@abcrainhadapaz.org.br","Rp25*2319",,
+"Virginia. Mazzuco|Ana.Brandino","brinquedoteca@abcrainhadapaz.org.br","Brinq@2024",,
+"Ricardo.costa","servicosocial_proj@abcrainhadapaz.org.br","ssproj@1833",,
+"Ana. Gouveia","psicologia@abcrainhadapaz.org.br","psc05678","psicologiarainha@gmail.com","psi#2023"
+"Camila Silva","servicosocial@abcrainhadapaz.org.br","Srv#0247","servicosocial@abcrainhadapaz.org.br","Srv#0247"
+"Manutenção To","to4@abcrainhadapaz.org.br","To@2022#",,
+"Raysah. Oliveira","padrinho3@abcrainhadapaz.org.br","Pdr@2022","padrinhorainhadapaz4@gmail.com","pdrp@2001"
+"Eduardo.Gallego","dir.financeiro@abcrainhadapaz.org.br","Fin@2025",,
+"Jaelson.Barboza","compras@abcrainhadapaz.org.br","Cpr@2022",,
+"Thaina. Roque","padrinho5@abcrainhadapaz.org.br","pdrp@2023","padrinhorainhadapaz3@gmail.com","pdrp@2001"
+"Kelly.Cruz","fisioterapia2@abcrainhadapaz.org.br","Fis2@2021",,
+"Wilavia. Pinto","fonoaudiologia2@abcrainhadapaz.org.br","fnali293@",,
+`,
+            `
+"USUARIO",,,,"USUARIO","EMAIL OUTLOOK","SENHA OUT","EMAIL GMAIL","SENHA GMAIL"
+"Katima. Freitas","pedagogia2@abcrainhadapaz.org.br","Pdg@2022",,
+"Joana.Frozino","nutricaoclinica@abcrainhadapaz.org.br","NUTRI@1833","nutri.rainha@gmail.com","Nutri 1833"
+"Tatiana. Gomes","financeiro@abcrainhadapaz.org.br","Fnc@2023","financeiro.abcrainhadapaz@gmail.com","financ@1833"
+"Denis. Silva","fisioterapia3@abcrainhadapaz.org.br","Fis@5060",,
+"Mariana. Ramos","to3@abcrainhadapaz.org.br","Tr$op@2021","to@abcrainhadapaz.org.br","Tro@34529"
+"Fernanda. Vecchio","servicosocial2@abcrainhadapaz.org.br","S&vc@1833",,
+"Sueli.Pereira","contato@abcrainhadapaz.org.br","Cntt#6093",,
+"Dayane. Santana","fisioterapia5@abcrainhadapaz.org.br","Fisio@5060",,
+"Magda. Vieira","servicosocial3@abcrainhadapaz.org.br","Svc@2022","servicosocial3@abcrainhadapaz.org.br","Svc@2022"
+"Larissa.Costa","adm@abcrainhadapaz.org.br","Admst$2001",,
+"Carol.kraide","nutricao@abcrainhadapaz.org.br","Nutri 1833","nutricao@abcrainhadapaz.org.br","Nutri 1833"
+"Mariana.Faustino","fisioterapia4@abcrainhadapaz.org.br","Fis#2022",,
+"AlineAlmeida.","fisioterapia6@abcrainhadapaz.org.br","Fis@2022",,
+"Rodrigo.Prestes","comunicacao@abcrainhadapaz.org.br","$cMn@Rp#1833",,
+"Adileni. Pelegrini","fonoaudiologia@abcrainhadapaz.org.br","fono3258",,
+"Renata.canela","captacao@abcrainhadapaz.org.br","Caprec@2022","captacao@abcrainhadapaz.org.br","Caprec@2022"
+`,
+            `
+"APLICACAO","USUÁRIO","SENHA"
+"HOTMAIL","ti@abcrainhadapaz.org.br","Rnh@pz#2319"
+"microsoft nonprofit","comunicacao@abcrainhadapaz.org.br","Rnhpz#25"
+"Trello","ti@abcrainhadapaz.org.br","Tril@2022"
+"Bizagi","ti@abcrainhadapaz.org.br","Rnhpz@07"
+"Bitdefender GravityZone","ti@abcrainhadapaz.org.br","Rnhpz@2024!$"
+"RADIUS","Administrator","Radius"
+"LOCAWEB","fabaohenri","Rnhpz2319#$"
+"Google Workspace","Rainha-Google","Rnhpz@07"
+"Google Workspace","ti@abcrainhadapaz.org.br","Rnhpz@2319"
+"DELL","ti@abcrainhadapaz.org.br","Rnhpz@07"
+"CONTA HP","ti@abcrainhadapaz.org.br","Print.rp@2001"
+"CONTA EPSON","ti@abcrainhadapaz.org.br","Print.rp@2001"
+"MICROSOFT","ti@abcrainhadapaz.org.br","Rnh@pz#2319"
+"PC Serviço - Bazar","TI","Rnhpz@07"
+"UNIFI BAZAR","ti2.rp","Rnh#pz@20211"
+"UNIFI RAINHA","valdemir assis","Rnh#pz@2021"
+"Computador Bazar","Bazar-RP","Bzr@2319#"
+"CONSOLE-CCTV",,"rainha@07"
+"ADT","ti@abcrainhadapaz.org.br","Rainha$2319"
+"INTELBRAS","abcrainha","Rnhpz@07"
+"MYSQL","root","Rnhpz@2319"
+"BITRIX 24","ti@abcrainhadapaz.org.br","Rnhpz@2319"
+"SITE","abcrainhadapaz1","Rnhpz$20201833"
+"SITE","MasterRainha","Mstr#@Rainha20"
+"SITE","gestor_rainha","rainha#@dapaz2020"
+"PAGSEGURO","ti2@abcrainhadapaz.org.br","072319"
+"CONTA DELL","ti@abcrainhadapaz.org.br","Rnhpz@07"
+"CONTA LENOVO","suporte.ti@abcrainhadapaz.org.br","Sup@5060"
+,"ti@abcrainhadapaz.org.br","Rnhpz@20241$"
+"SOC","admcarp","Rpz@2319 ID: 3538"
+"EZpoint","Matricula-828825","Senha-6420"
+"Wi-Fi Paroquia",,
+`,
+            `
+APLICACAO USUÁRIO SENHA GRUPO USUÁRIO Códigos de backup Caso perca acesso ao celular vinculado a essa conta você pode recorrer ao back up. Cada código pode ser utilizado uma vez. 92815287 85979877 20727036 54391403 96297501 12934848 68281572 78949193 28234436 24843868
+`,
+            `"STATUS","REGISTRO WIN","REGISTRO OFFICE","PATRIMONIO","NOTA FISCAL","USUARIO","SETOR","HOST NAME","MODELO","SERVICE TAO","TIPO","FABRICANTE"
+"000122 00000","00.7061",Tecnologia da informação,Willan Siqunira,TIMOS,Mymas,OUTROS,
+"NAO","NÃO",,DOOKST,1000231,"06.700.0 05706.611",Medicos,Lucene D,BELL,CONSOLE CITY,COMPUTADHD,GELL
+"NAO","NÃO",,,"0001185 000023","0570011",Apoio pedagogeo,Linem Noranians Santa,APOIO-MOS,Optiplex 3020,Dell,COMPUTADOOR,ALLING NIS
+"NAO","NÃO",,,"000158",,"3020",Aluno,Als Of,ALUNO MOT,,
+"NAO","NÃO",,,"000344","05 706611",Aluno,5040,DELL,EDENETADOWS 1064,,
+,,,,,"GEL",,,
+,"000379 000500","06.700611 106811 06706 5706611",Aluno,UNG,Dell Optiplex 301,Aluno D,DELL,ERERNITINDOWS10,DORS
+,,,,,,,DORS,
+"000729 000051","02.543.52 54.706-121 32384971",Servida Ti,240,DELL,APORO-MOT,,
+,,,,,,,
+"001437 001425",,Tera pa oparackla,Mana Gambos,RHADL,Del Vasts 3710,DELL,ETERNET,
+,,,,,,
+"001428 001410",,Samum Andrade,ZHROM,,DELL,ETERNITIN,
+,"001419 001422","06.706",Depo Slovee,DOA 4102,DELL,ETHERNET,
+,,,,,,,
+"001413 001431",,"Hatariz Ainda",Dell Vostro 37 10,GYHEXINS,DELL,
+,,,,,,
+,"001-4411 501443",,Debora Magar,THROW,DELL,
+,,,,,,
+"001443",,Nut voluntaria,W,DELL,,,,
+,"001416",,Livia (UNIF),NUTRI-MOS,OUTROS,,,,
+"000077 000188",,Bazar Ravna,BAZAR MOT,LENOVO,
+,,,,,,
+"001434","05388310",Luna,COMP544,DELL,De Vero 1530,4139973,
+"DOGRES 000058","02 384071 04.031301 05 127.723",Daniele RocquRE,SPST,DELL,
+,,,,,,
+"DOCHHET 000718","04.01.201 02.700 754",Ricardo.conts,NOTEIDON,DELL,
+,,,,,,
+"0007716 000715","02.700784 02-700754",Тещи осиреск,OFLL,DELL,
+,,,,,,
+"001594 001008 001079",,Rayth,CAPREC A106,DELL,
+,,,,,,
+"001005",,Kaoma Fratas,D15,DELL,720-0,
+`
+        ];
+
+        setPageData(pageTexts.map(parseData));
+    }, []);
+
+    const renderPage = (data: DataEntry[], pageIndex: number) => (
+        <Card key={pageIndex}>
+            <CardHeader>
+                <CardTitle>{`Página ${pageIndex + 1}`}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ScrollArea className="h-[400px] w-full rounded-md border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                {data.length > 0 && Object.keys(data[0]).map((key) => (
+                                    <TableHead key={key}>{key}</TableHead>
+                                ))}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {data.map((item, index) => (
+                                <TableRow key={index}>
+                                    {Object.values(item).map((value, vIndex) => (
+                                        <TableCell key={vIndex}>{value}</TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
+            </CardContent>
+        </Card>
+    );
+
+    return (
+        <div className="p-4 space-y-8">
+            <h1 className="text-2xl font-bold text-center">Dados Extraídos do PDF</h1>
+            {pageData.map((data, index) => renderPage(data, index))}
+        </div>
+    );
+};
+
+export default App;
